@@ -218,7 +218,7 @@ Action<string, string> Package = (nuspec, basePath) =>
         Verbosity                = NuGetVerbosity.Detailed,
         OutputDirectory          = artifactDirectory,
         BasePath                 = basePath,
-		Version             	 = majorMinorPatch
+		Version             	 = nugetVersion
     });
 };
 
