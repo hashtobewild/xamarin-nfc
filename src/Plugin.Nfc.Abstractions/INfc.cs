@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Plugin.Nfc.Abstractions
@@ -8,24 +9,10 @@ namespace Plugin.Nfc.Abstractions
     public interface INfc
     {
         event TagDetectedDelegate TagDetected;
-        
-        /// <summary>
-        /// Checks if <see cref="GetAvailabilityAsync"/> returns <see cref="FingerprintAvailability.Available"/>.
-        /// </summary>
-        /// <param name="allowAlternativeAuthentication">
-        /// En-/Disables the use of the PIN / Passwort as fallback.
-        /// Supported Platforms: iOS, Mac
-        /// Default: false
-        /// </param>
-        /// <returns><c>true</c> if Available, else <c>false</c></returns>
-        Task<bool> IsAvailableAsync();
-        Task<bool> IsEnabledAsync();
-
-
-        Task StartListeningAsync();
+        ValueTask<bool> IsAvailableAsync();
+        ValueTask<bool> IsEnabledAsync();
+        Task StartListeningAsync(CancellationToken token = default(CancellationToken));
         Task StopListeningAsync();
-
-        
     }
 
     public interface INfcDefTag
@@ -45,11 +32,6 @@ namespace Plugin.Nfc.Abstractions
         Unchanged,
         Unknown
     }
-
-    //public class NDefMessage
-    //{
-    //    public NDefRecord[] Records { get; set; }
-    //}
 
     public class NfcDefRecord
     {
