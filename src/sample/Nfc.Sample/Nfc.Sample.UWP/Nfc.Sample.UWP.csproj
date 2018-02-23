@@ -11,7 +11,7 @@
     <AssemblyName>Nfc.Sample.UWP</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
-    <TargetPlatformVersion>10.0.15063.0</TargetPlatformVersion>
+    <TargetPlatformVersion>10.0.16299.0</TargetPlatformVersion>
     <TargetPlatformMinVersion>10.0.10586.0</TargetPlatformMinVersion>
     <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
     <EnableDotNetNativeCompatibleProfile>true</EnableDotNetNativeCompatibleProfile>
@@ -158,10 +158,6 @@
     <ProjectReference Include="..\..\..\Plugin.Nfc.Abstractions\Plugin.Nfc.Abstractions.csproj">
       <Project>{3d8b731c-fe80-4836-ba3a-15eaeedaf2c6}</Project>
       <Name>Plugin.Nfc.Abstractions</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Plugin.Nfc.UWP\Plugin.Nfc.UWP.csproj">
-      <Project>{ade1f069-6b24-4366-96b2-d902f03a6410}</Project>
-      <Name>Plugin.Nfc.UWP</Name>
     </ProjectReference>
     <ProjectReference Include="..\Nfc.Sample\Nfc.Sample.csproj">
       <Project>{c55255bf-1540-4823-af7b-1ccea850fffb}</Project>
