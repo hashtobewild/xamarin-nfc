@@ -13,7 +13,7 @@ Packages
 .vs/
 TestResult.xml
 build/artifacts/
-build/tools/
+build/tools/*
 !build/tools/packages.config
 *.orig
 .idea
