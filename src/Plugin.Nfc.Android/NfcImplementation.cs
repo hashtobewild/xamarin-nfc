@@ -11,6 +11,7 @@ using Android.Content.PM;
 using Android.Nfc;
 using Android.Nfc.Tech;
 using Android.OS;
+using Java.IO;
 using Plugin.Nfc.Abstractions;
 
 namespace Plugin.Nfc
@@ -18,7 +19,6 @@ namespace Plugin.Nfc
     internal class NfcImplementation : Java.Lang.Object, INfc, NfcAdapter.IReaderCallback
     {
         private readonly NfcAdapter _nfcAdapter;
-
         public event TagDetectedDelegate TagDetected;
 
         public NfcImplementation()
@@ -63,10 +63,7 @@ namespace Plugin.Nfc
 
         public async Task StopListeningAsync()
         {
-            await Task.Run(() =>
-            {
-                _nfcAdapter?.DisableForegroundDispatch(CrossNfc.CurrentActivity);
-            });
+            await Task.Run(() => { _nfcAdapter?.DisableForegroundDispatch(CrossNfc.CurrentActivity); });
         }
 
         internal void CheckForNfcMessage(Intent intent)
@@ -102,8 +99,7 @@ namespace Plugin.Nfc
             var ndefMessage = ndef.NdefMessage;
             var records = ndefMessage.GetRecords();
             ndef.Close();
-
-            var nfcTag = new NfcDefTag(ndef, records);
+            var nfcTag = new NfcDefTag(tag, ndef?.IsWritable ?? false, records);
             TagDetected?.Invoke(nfcTag);
         }
     }
@@ -112,13 +108,58 @@ namespace Plugin.Nfc
     {
         public bool IsWriteable { get; }
         public NfcDefRecord[] Records { get; }
-
-        public NfcDefTag(Ndef tag, IEnumerable<NdefRecord> records)
+        private Tag _tag;
+        public NfcDefTag(Tag tag , bool isWritable, IEnumerable<NdefRecord> records)
         {
-            IsWriteable = tag?.IsWritable ?? false;
+            _tag = tag;
+            IsWriteable = isWritable;
             Records = records
                 .Select(r => new AndroidNdefRecord(r))
                 .ToArray();
+        }
+        
+        public async Task<bool> WriteMessage(NfcDefMessage message)
+        {
+            if (!IsWriteable) return false;
+            var records = message.Records.Cast<AndroidNdefRecord>().Select(m => m.ToNdefRecord()).ToArray();
+            var msg = new NdefMessage(records);
+            try
+            {
+                var ndef = Ndef.Get(_tag);
+
+                if (ndef != null)
+                {
+                    await ndef.ConnectAsync();
+                    if (ndef.MaxSize < msg.ToByteArray().Length)
+                    {
+                        return false;
+                    }
+
+                    if (!ndef.IsWritable)
+                    {
+                        return false;
+                    }
+                    await ndef.WriteNdefMessageAsync(msg);
+                    ndef.Close();
+                    return true;
+                }
+                
+                var nDefFormatableTag = NdefFormatable.Get(_tag);
+                try
+                {
+                    await nDefFormatableTag.ConnectAsync();
+                    nDefFormatableTag.Format(msg);
+                    nDefFormatableTag.Close();
+                    //The data is written to the tag
+                    return true;
+                } catch (IOException ex) {
+                    //Failed to format tag
+                    return false;
+                }
+          
+            } catch (Exception ex) {
+                throw new ApplicationException("Writing to Nfc Tag failed", ex);
+            }
         }
     }
 
@@ -128,7 +169,14 @@ namespace Plugin.Nfc
         {
             TypeNameFormat = GetTypeNameFormat(nativeRecord.Tnf);
             Payload = nativeRecord.GetPayload();
+            Id = nativeRecord.GetId();
+            TypeInfo = nativeRecord.GetTypeInfo();
+            Tnf = nativeRecord.Tnf;
         }
+
+        public byte[] Id { get; }
+        public byte[] TypeInfo { get; }
+        public short Tnf { get; }
 
         private NDefTypeNameFormat GetTypeNameFormat(short nativeRecordTnf)
         {
@@ -151,6 +199,49 @@ namespace Plugin.Nfc
             }
 
             return NDefTypeNameFormat.Unknown;
+        }
+
+        public NdefRecord ToNdefRecord()
+        {
+            return new NdefRecord(Tnf, TypeInfo, Id, Payload);
+        }
+    }
+
+    public class AndroidNfcDefRecordFactory : INfcDefRecordFactory
+    {
+        public NfcDefRecord CreateApplicationRecord(string packageName)
+        {
+            var record = NdefRecord.CreateApplicationRecord(packageName);
+            var r = new AndroidNdefRecord(record);
+            return r;
+        }
+
+        public NfcDefRecord CreateMimeRecord(string mimeType, byte[] mimeData)
+        {
+            var record = NdefRecord.CreateMime(mimeType, mimeData);
+            var r = new AndroidNdefRecord(record);
+            return r;
+        }
+
+        public NfcDefRecord CreateExternalRecord(string domain, string type, byte[] data)
+        {
+            var record = NdefRecord.CreateExternal(domain, type, data);
+            var r = new AndroidNdefRecord(record);
+            return r;
+        }
+
+        public NfcDefRecord CreateTextRecord(string languageCode, string text)
+        {
+            var record = NdefRecord.CreateTextRecord(languageCode,text);
+            var r = new AndroidNdefRecord(record);
+            return r;
+        }
+
+        public NfcDefRecord CreateUriRecord(Uri uri)
+        {
+            var record = NdefRecord.CreateUri(uri.AbsoluteUri);
+            var r = new AndroidNdefRecord(record);
+            return r;
         }
     }
 }
