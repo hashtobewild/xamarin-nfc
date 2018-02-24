@@ -1,12 +1,23 @@
 ﻿using System;
 using System.Threading;
-using Plugin.Nfc.Abstractions;
 
 namespace Plugin.Nfc
 {
     public partial class CrossNfc
     {
         private static Lazy<INfc> _implementation = new Lazy<INfc>(CreateNfc, LazyThreadSafetyMode.PublicationOnly);
+        private static readonly Lazy<INfcDefRecordFactory> _factory = new Lazy<INfcDefRecordFactory>(CreateFactory, LazyThreadSafetyMode.PublicationOnly);
+        public static INfcDefRecordFactory CurrentFactory => _factory.Value;
+
+        private static INfcDefRecordFactory CreateFactory()
+        {
+#if PORTABLE
+            throw NotImplementedInReferenceAssembly();
+#else
+            return new NfcDefRecordFactoryImplementation();
+#endif
+        }
+
         public static INfc Current => _implementation.Value;
 
         private static INfc CreateNfc()

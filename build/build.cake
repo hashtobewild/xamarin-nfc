@@ -15,11 +15,12 @@ using System.Text.RegularExpressions;
 #tool "GitVersion.CommandLine"
 #tool "GitLink"
 #tool nuget:?package=vswhere
+
 using Cake.Common.Build.TeamCity;
-using Cake.Core.IO;
-using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+
+
 //////////////////////////////////////////////////////////////////////
 // ARGUMENTS
 //////////////////////////////////////////////////////////////////////
@@ -72,6 +73,7 @@ if(config == null) {
 }
 
 
+
 // Build configuration
 var productName = config.Value<string>("productName");
 var project = config.Value<string>("projectName");
@@ -81,13 +83,15 @@ var isRunningOnUnix = IsRunningOnUnix();
 var isRunningOnWindows = IsRunningOnWindows();
 var teamCity = BuildSystem.TeamCity;
 var branch = EnvironmentVariable("Git_Branch");
-var isPullRequest = !String.IsNullOrEmpty(branch) && branch.ToLower().Contains("refs/pull");
+var isPullRequest = !String.IsNullOrEmpty(branch) && branch.ToLower().Contains("refs/pull"); //teamCity.Environment.PullRequest.IsPullRequest;
 var projectName =  EnvironmentVariable("TEAMCITY_PROJECT_NAME"); //  teamCity.Environment.Project.Name;
 var isRepository = StringComparer.OrdinalIgnoreCase.Equals(productName, projectName);
 var isTagged = !String.IsNullOrEmpty(branch) && branch.ToLower().Contains("refs/tags");
 var buildConfName = EnvironmentVariable("TEAMCITY_BUILDCONF_NAME"); //teamCity.Environment.Build.BuildConfName
 var buildNumber = GetEnvironmentInteger("BUILD_NUMBER");
 var isReleaseBranch = StringComparer.OrdinalIgnoreCase.Equals("master", buildConfName)|| StringComparer.OrdinalIgnoreCase.Equals("release", buildConfName);
+var configuration = "Release";
+
 var shouldAddLicenseHeader = false;
 if(!string.IsNullOrEmpty(EnvironmentVariable("ShouldAddLicenseHeader"))) {
 	shouldAddLicenseHeader = bool.Parse(EnvironmentVariable("ShouldAddLicenseHeader"));
@@ -97,13 +101,6 @@ var githubOwner = config.Value<string>("githubOwner");
 var githubRepository = config.Value<string>("githubRepository");
 var githubUrl = string.Format("https://github.com/{0}/{1}", githubOwner, githubRepository);
 var licenceUrl = string.Format("{0}/blob/master/LICENSE", githubUrl);
-var runUnitTests = config.Value<bool>("runUnitTests");
-var isCI = EnvironmentVariable("CI");
-
-if(string.IsNullOrEmpty(isCI)) 
-{
-	isCI = "false";
-}
 
 // Version
 string majorMinorPatch;
@@ -138,27 +135,28 @@ var iconUrl = config.Value<string>("iconUrl");
 var tags = config.Value<JArray>("tags").Values<string>().ToList();
 
 // Artifacts
-var artifactDirectory = "./artifacts/";
+var artifactDirectory = config.Value<string>("artifactDirectory");
 var packageWhitelist = config.Value<JArray>("packageWhiteList").Values<string>();
 
 var buildSolution = config.Value<string>("solutionFile");
-var configuration = "Release";
+var runUnitTests = config.Value<bool>("runUnitTests");
+
+var isCI = EnvironmentVariable("CI");
+
+if(string.IsNullOrEmpty(isCI)) 
+{
+	isCI = "false";
+}
 // Macros
+
 Func<string> GetMSBuildLoggerArguments = () => {
     return BuildSystem.TeamCity.IsRunningOnTeamCity ? EnvironmentVariable("MsBuildLogger"): null;
 };
 
+
 Action Abort = () => { throw new Exception("A non-recoverable fatal error occurred."); };
 Action<string> TestFailuresAbort = testResult => { throw new Exception(testResult); };
 Action NonMacOSAbort = () => { throw new Exception("Running on platforms other macOS is not supported."); };
-
-Action<DirectoryPathCollection> PrintDirectories = (directories) => 
-{
-	foreach(var directory in directories)
-	{
-		Information("{0}\n", directory);
-	}
-};
 
 Action<string, string, Exception> WriteErrorLog = (message, identity, ex) => 
 {
@@ -195,7 +193,6 @@ Func<string, IDisposable> Block = message => {
 	return null;
 };
 
-
 Func<FilePath> GetMsBuildPath = () => {
 
 	FilePath msBuildPath = null;
@@ -207,50 +204,66 @@ Func<FilePath> GetMsBuildPath = () => {
 	return msBuildPath;
 };
 
-
-Action<string, string> Package = (nuspec, basePath) =>
+Action<string> buildTest = (proj) =>
 {
-    CreateDirectory(artifactDirectory);
+    Information("Building {0}", proj);
+	using(BuildBlock("Building Test")) 
+	{			
+  		var msBuildPath = GetMsBuildPath();
+		Information("MSBuild: {0}", msBuildPath);
+		
+    	MSBuild(proj, settings => {
+			settings
+			.SetConfiguration(configuration);
+			
+			if(isRunningOnWindows) {
+				settings.ToolPath = msBuildPath;
+			}
 
-    Information("Packaging {0} using {1} as the BasePath.", nuspec, basePath);
+			settings
+			.SetVerbosity(Verbosity.Minimal)
+			.SetNodeReuse(false);
+		});
+    };		
 
-    NuGetPack(nuspec, new NuGetPackSettings {
-        Verbosity                = NuGetVerbosity.Detailed,
-        OutputDirectory          = artifactDirectory,
-        BasePath                 = basePath,
-		Version             	 = nugetVersion
-    });
 };
 
 
-Action<string, string> buildWithTargets = (solution, target) =>
+Action<string> build = (solution) =>
 {
     Information("Building {0}", solution);
-	using(BuildBlock("Building")) 
+	using(BuildBlock("Build")) 
 	{			
   		var msBuildPath = GetMsBuildPath();
+	
 		Information("MSBuild: {0}", msBuildPath);
 		
     	MSBuild(solution, settings => {
 			settings
 			.SetConfiguration(configuration);
 			
-			if(!string.IsNullOrWhiteSpace(target)) {
-				settings.WithTarget(target);
-			}
-
 			if(isRunningOnWindows) {
 				settings.ToolPath = msBuildPath;
 			}
 
+			settings.WithTarget("restore;pack");
+	
 			settings
 			.WithProperty("SourceLinkEnabled",  isCI)
 			.WithProperty("PackageOutputPath",  MakeAbsolute(Directory(artifactDirectory)).ToString())
 			.WithProperty("NoWarn", "1591") // ignore missing XML doc warnings
 			.WithProperty("TreatWarningsAsErrors", treatWarningsAsErrors.ToString())
+		    .WithProperty("Version", nugetVersion.ToString())
+		    .WithProperty("Authors",  "\"" + string.Join(" ", authors) + "\"")
+		    .WithProperty("Copyright",  "\"" + copyright + "\"")
+		    .WithProperty("PackageProjectUrl",  "\"" + githubUrl + "\"")
+		    .WithProperty("PackageIconUrl",  "\"" + iconUrl + "\"")
+		    .WithProperty("PackageLicenseUrl",  "\"" + licenceUrl + "\"")
+		    .WithProperty("PackageTags",  "\"" + string.Join(" ", tags) + "\"")
+		    .WithProperty("PackageReleaseNotes",  "\"" +  string.Format("{0}/releases", githubUrl) + "\"")
 			.SetVerbosity(Verbosity.Minimal)
 			.SetNodeReuse(false);
-
+		
 			var msBuildLogger = GetMSBuildLoggerArguments();
 		
 			if(!string.IsNullOrEmpty(msBuildLogger)) 
@@ -264,13 +277,12 @@ Action<string, string> buildWithTargets = (solution, target) =>
 
 };
 
-
 ///////////////////////////////////////////////////////////////////////////////
 // SETUP / TEARDOWN
 ///////////////////////////////////////////////////////////////////////////////
 Setup((context) =>
 {
-    Information("Building version {0} of {1}. (isTagged: {2})", informationalVersion, project, isTagged);
+    Information("Building version {0} of ChilliSource.Mobile. (isTagged: {1})", informationalVersion, isTagged);
 
 		if (isTeamCity)
 		{
@@ -289,20 +301,22 @@ Setup((context) =>
         else
         {
              Information("Not running on TeamCity");
-        }		
+        }
 
-		DeleteFiles("../src/**/*.tmp");
+      	DeleteFiles("../src/**/*.tmp");
 		DeleteFiles("../src/**/*.tmp.*");
 
 		CleanDirectories(GetDirectories("../src/**/obj"));
-		CleanDirectories(GetDirectories("../src/**/bin"));		
-		CleanDirectory(Directory(artifactDirectory));		
+		CleanDirectories(GetDirectories("../src/**/bin"));
+		DeleteDirectories(GetDirectories("../src/**/obj"));
+		DeleteDirectories(GetDirectories("../src/**/bin"));	
+		CleanDirectory(Directory(artifactDirectory));	
 });
 
-// Teardown((context) =>
-// {
-//     // Executed AFTER the last task.
-// });
+Teardown((context) =>
+{
+    // Executed AFTER the last task.
+});
 
 //////////////////////////////////////////////////////////////////////
 // TASKS
@@ -312,8 +326,7 @@ Task("Build")
 	.IsDependentOn("AddLicense")
     .Does (() =>
 {
-    buildWithTargets(buildSolution, "restore");
-    buildWithTargets(buildSolution, string.Empty);
+    build(buildSolution);
 })
 .OnError(exception => {
 	WriteErrorLog("Build failed", "Build", exception);
@@ -322,7 +335,7 @@ Task("Build")
 Task("AddLicense")
 	.WithCriteria(() => shouldAddLicenseHeader)
 	.Does(() =>{
-		var command = isRunningOnWindows ? "sh" : "./license-header-cmd.sh";
+		var command = "sh";
 		var settings = isRunningOnWindows ? new ProcessSettings { Arguments = "-c \"./license-header-cmd.sh\"", RedirectStandardError = true, RedirectStandardOutput = true } : new ProcessSettings { RedirectStandardError = true, RedirectStandardOutput = true };
 		var process  = StartAndReturnProcess(command, settings);		
 		process.WaitForExit();
@@ -346,12 +359,14 @@ Task("RunUnitTests")
 	Information("Running Unit Tests for {0}", buildSolution);
 	using(BuildBlock("RunUnitTests")) 
 	{
-		buildWithTargets(testProject, string.Empty);
+		buildTest(testProject);
+
 		var settings = new DotNetCoreTestSettings
 		{
-			Configuration = configuration
+			Configuration = configuration,
+			NoBuild = true
 		};
-		
+
 		DotNetCoreTest(settings, testProject,  new XUnit2Settings {
 			OutputDirectory = artifactDirectory,
             XmlReportV1 = false
@@ -359,33 +374,8 @@ Task("RunUnitTests")
 	};
 });
 
-
-Task("Package")
-    .IsDependentOn("RunUnitTests")
-    .Does (() =>
-{
-	using(BuildBlock("Package")) 
-	{
-		foreach(var package in packageWhitelist)
-		{
-			// only push the package which was created during this build run.
-			var packagePath = string.Format("../src/.build/{0}.nuspec", package);
-
-			// Push the package.
-			Package(packagePath, "../src");
-		}
-	};
-
-    
-})
-.OnError(exception => {
-	WriteErrorLog("Generating packages failed", "Package", exception);
-});
-
-
-
 Task("PublishPackages")
-    .IsDependentOn("Package")
+    .IsDependentOn("RunUnitTests")
     .WithCriteria(() => !local)
     .WithCriteria(() => !isPullRequest)
     .WithCriteria(() => isRepository)
@@ -532,19 +522,14 @@ Task("PublishRelease")
 //////////////////////////////////////////////////////////////////////
 
 Task("Default")
-    .IsDependentOn("CreateRelease")
-    .IsDependentOn("PublishPackages")
-    .IsDependentOn("PublishRelease")
+	.IsDependentOn("CreateRelease")
+	.IsDependentOn("PublishPackages")
+	.IsDependentOn("PublishRelease")
     .Does (() =>
 {
 
 });
 
-// Used to test Setup / Teardown
-Task("None")
-	.Does(() => {
-
-	});
 
 //////////////////////////////////////////////////////////////////////
 // EXECUTION

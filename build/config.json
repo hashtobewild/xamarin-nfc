@@ -4,12 +4,13 @@
 	"githubOwner": "smstuebe",
 	"githubRepository": "xamarin-nfc",
 	"packageWhiteList": ["Plugin.Nfc"],
-	"solutionFile" : "../src/Plugin.NfcBuild.sln",
+	"solutionFile" : "../src/Plugin.Nfc.sln",
 	"tags": [ "Xamarin", "Nfc", "Xamarin.Android", "Xamarin.iOS"],
 	"authors" : ["smstuebe"],
 	"copyright" : "Copyright (c) 2017 Sven-Michael Stübe",
 	"iconUrl": "https://avatars0.githubusercontent.com/u/5924219?v=3&s=200",
-	"testProjectPath": "",
-	"runUnitTests": false,
-	"nuspecRootPath" : "../"
+	 "testProjectPath": "",	
+     "runUnitTests" : false,
+	"nuspecRootPath" : "../src/",
+	"artifactDirectory" : "../build/artifacts/"
 }
