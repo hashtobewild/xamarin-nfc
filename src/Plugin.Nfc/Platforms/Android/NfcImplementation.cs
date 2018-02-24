@@ -41,8 +41,11 @@ namespace Plugin.Nfc
             if (!await IsAvailableAsync())
                 throw new InvalidOperationException("NFC not available");
 
-            if (!await IsEnabledAsync()) // todo: offer possibility to open dialog
-                throw new InvalidOperationException("NFC is not enabled");
+            if (!await IsEnabledAsync())
+            {
+                ShowNfcSettingDialog();
+                return;
+            }
 
             token.Register(() =>
             {
@@ -99,6 +102,25 @@ namespace Plugin.Nfc
             var isWritable = ndef?.IsWritable ?? false;
             var nfcTag = new NfcDefTag(tag, records, isWritable);
             TagDetected?.Invoke(nfcTag);
+        }
+
+        public void ShowNfcSettingDialog()
+        {
+            var activity = CrossNfc.CurrentActivity;
+            var builder = new AlertDialog.Builder(activity);
+            builder.SetTitle(Resource.String.nfc_setting_title);
+            builder.SetMessage(Resource.String.nfc_setting_message);
+            builder.SetPositiveButton("Settings", (sender, e) => {
+                activity.StartActivity(new Intent(Android.Provider.Settings.ActionNfcSettings));
+            });
+            builder.SetNegativeButton("Close", (sender , e) =>
+            {
+               
+            });
+
+            builder.Show();
+
+              
         }
     }
 }

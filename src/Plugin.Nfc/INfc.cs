@@ -11,6 +11,7 @@ namespace Plugin.Nfc
         event TagDetectedDelegate TagDetected;
         ValueTask<bool> IsAvailableAsync();
         ValueTask<bool> IsEnabledAsync();
+        void ShowNfcSettingDialog();
         Task StartListeningAsync(CancellationToken token = default(CancellationToken));
         Task StopListeningAsync();
     }
