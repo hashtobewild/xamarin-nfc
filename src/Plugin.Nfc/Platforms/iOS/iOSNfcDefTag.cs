@@ -11,6 +11,8 @@ namespace Plugin.Nfc
         public bool IsWriteable { get; }
         public NfcDefRecord[] Records { get; }
 
+        public string TagId {get;}
+
         public iOSNfcDefTag(IEnumerable<NFCNdefMessage> records)
         {
             IsWriteable = false;
@@ -21,7 +23,7 @@ namespace Plugin.Nfc
 
         public ValueTask<bool> WriteMessage(NfcDefMessage message)
         {
-           throw new NotSupportedException();
+           return new ValueTask<bool>(true);
         }
     }
 }

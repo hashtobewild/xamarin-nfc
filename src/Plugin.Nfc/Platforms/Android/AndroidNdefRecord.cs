@@ -13,9 +13,7 @@ namespace Plugin.Nfc
             Tnf = nativeRecord.Tnf;
         }
 
-        public byte[] Id { get; }
-        public byte[] TypeInfo { get; }
-        public short Tnf { get; }
+       public short Tnf { get;}
 
         private NDefTypeNameFormat GetTypeNameFormat(short nativeRecordTnf)
         {

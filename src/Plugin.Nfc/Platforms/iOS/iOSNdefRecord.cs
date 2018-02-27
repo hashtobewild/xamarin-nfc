@@ -8,6 +8,8 @@ namespace Plugin.Nfc
         {
             TypeNameFormat = GetTypeNameFormat(nativeRecord.TypeNameFormat);
             Payload = nativeRecord.Payload?.ToArray();
+            TypeInfo = nativeRecord.Type?.ToArray();
+            Id = nativeRecord.Identifier?.ToArray();
         }
 
         private NDefTypeNameFormat GetTypeNameFormat(NFCTypeNameFormat nativeTypeNameFormat)

@@ -19,11 +19,7 @@ namespace Plugin.Nfc
             return new ValueTask<bool>(true);
         }
 
-        public void ShowNfcSettingDialog()
-        {
-           
-        }
-
+      
         public async Task StartListeningAsync(CancellationToken token = default(CancellationToken))
         {
             var reader = new NfcReader();

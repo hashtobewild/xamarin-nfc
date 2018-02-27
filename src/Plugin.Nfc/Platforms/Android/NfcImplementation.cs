@@ -23,6 +23,7 @@ namespace Plugin.Nfc
             if (Build.VERSION.SdkInt < BuildVersionCodes.Kitkat)
                 return;
             _nfcAdapter = NfcAdapter.GetDefaultAdapter(CrossNfc.CurrentActivity);
+            
         }
 
         public ValueTask<bool> IsAvailableAsync()
@@ -63,7 +64,11 @@ namespace Plugin.Nfc
 
         public async Task StopListeningAsync()
         {
-            await Task.Run(() => { _nfcAdapter?.DisableForegroundDispatch(CrossNfc.CurrentActivity); });
+            var activity = CrossNfc.CurrentActivity;
+            activity?.RunOnUiThread(() =>
+            {
+                 _nfcAdapter?.DisableForegroundDispatch(CrossNfc.CurrentActivity);
+            });
         }
 
         internal void CheckForNfcMessage(Intent intent)
@@ -72,6 +77,7 @@ namespace Plugin.Nfc
 
             if (intent.GetParcelableExtra(NfcAdapter.ExtraTag) is Tag tag)
             {
+                var tagId = intent.GetParcelableExtra(NfcAdapter.ExtraId) as Java.Lang.String;
                 OnTagDiscovered(tag);
                 return;
             }
@@ -93,7 +99,7 @@ namespace Plugin.Nfc
             var techs = tag.GetTechList();
             if (!techs.Contains(Java.Lang.Class.FromType(typeof(Ndef)).Name))
                 return;
-
+           
             var ndef = Ndef.Get(tag);
             ndef.Connect();
             var ndefMessage = ndef.NdefMessage;
@@ -107,11 +113,11 @@ namespace Plugin.Nfc
         public void ShowNfcSettingDialog()
         {
             var activity = CrossNfc.CurrentActivity;
-            var builder = new AlertDialog.Builder(activity);
+            var builder = new AlertDialog.Builder(Application.Context);
             builder.SetTitle(Resource.String.nfc_setting_title);
             builder.SetMessage(Resource.String.nfc_setting_message);
             builder.SetPositiveButton("Settings", (sender, e) => {
-                activity.StartActivity(new Intent(Android.Provider.Settings.ActionNfcSettings));
+                 Application.Context.StartActivity(new Intent(Android.Provider.Settings.ActionNfcSettings));
             });
             builder.SetNegativeButton("Close", (sender , e) =>
             {

@@ -12,11 +12,14 @@ namespace Plugin.Nfc
     {
         public bool IsWriteable { get; }
         public NfcDefRecord[] Records { get; }
+        public string TagId {get;}
+
         private Tag _tag;
-        public NfcDefTag(Tag tag , IEnumerable<NdefRecord> records, bool isWritable = false)
+        public NfcDefTag(Tag tag , IEnumerable<NdefRecord> records, bool isWritable = false, string id = null)
         {
             _tag = tag;
             IsWriteable = isWritable;
+            TagId = id;
             Records = records
                 .Select(r => new AndroidNdefRecord(r))
                 .ToArray();

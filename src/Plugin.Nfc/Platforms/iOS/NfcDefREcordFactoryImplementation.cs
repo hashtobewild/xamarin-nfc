@@ -6,27 +6,27 @@ namespace Plugin.Nfc
     {
         public NfcDefRecord CreateApplicationRecord(string packageName)
         {
-            throw new NotImplementedException();
+           return NfcDefRecord.Empty;
         }
 
         public NfcDefRecord CreateExternalRecord(string domain, string type, byte[] data)
         {
-            throw new NotImplementedException();
+            return NfcDefRecord.Empty;
         }
 
         public NfcDefRecord CreateMimeRecord(string mimeType, byte[] mimeData)
         {
-            throw new NotImplementedException();
+             return NfcDefRecord.Empty;
         }
 
         public NfcDefRecord CreateTextRecord(string languageCode, string text)
         {
-            throw new NotImplementedException();
+            return NfcDefRecord.Empty;
         }
 
         public NfcDefRecord CreateUriRecord(Uri uri)
         {
-            throw new NotImplementedException();
+           return NfcDefRecord.Empty;
         }
     }
 }
