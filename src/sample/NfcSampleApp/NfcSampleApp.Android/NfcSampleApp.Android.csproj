@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>NfcSampleApp.Droid</RootNamespace>
     <AssemblyName>NfcSampleApp</AssemblyName>
-    <TargetFrameworkVersion>v7.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v8.0</TargetFrameworkVersion>
     <AndroidApplication>True</AndroidApplication>
     <AndroidResgenFile>Resources\Resource.designer.cs</AndroidResgenFile>
     <AndroidResgenClass>Resource</AndroidResgenClass>
@@ -53,6 +53,9 @@
     <PackageReference Include="Xamarin.Android.Support.v4" Version="25.4.0.2" />
     <PackageReference Include="Xamarin.Android.Support.v7.CardView" Version="25.4.0.2" />
     <PackageReference Include="Xamarin.Android.Support.v7.MediaRouter" Version="25.4.0.2" />
+    <PackageReference Include="Plugin.Nfc">
+      <Version>1.4.4-alpha0016</Version>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MainActivity.cs" />
@@ -78,12 +81,6 @@
     <AndroidResource Include="Resources\values\styles.xml">
       <SubType>Designer</SubType>
     </AndroidResource>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\Plugin.Nfc\Plugin.Nfc.csproj">
-      <Project>{151ea2f0-09ea-42c5-b9e9-93eb9333ff61}</Project>
-      <Name>Plugin.Nfc</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="..\NfcSampleApp\NfcSampleApp.projitems" Label="Shared" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />

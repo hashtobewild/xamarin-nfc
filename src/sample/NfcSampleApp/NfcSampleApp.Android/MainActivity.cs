@@ -13,7 +13,7 @@ using Android.Content;
 namespace NfcSampleApp.Droid
 {
     [Activity(Label = "NfcSampleApp", Icon = "@drawable/icon", Theme = "@style/MainTheme", MainLauncher = true, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation)]
-    [IntentFilter(new []{ NfcAdapter.ActionNdefDiscovered }, Categories = new []{ "android.intent.category.DEFAULT" }, DataMimeType = "*/*", DataScheme = "https", DataHost = "www.talki.com")]
+    [IntentFilter(new []{ NfcAdapter.ActionNdefDiscovered }, Categories = new []{ "android.intent.category.DEFAULT" }, DataMimeType = "*/*")]
    public class MainActivity : global::Xamarin.Forms.Platform.Android.FormsAppCompatActivity
     {
         protected override void OnCreate(Bundle bundle)
@@ -32,7 +32,6 @@ namespace NfcSampleApp.Droid
         protected override void OnNewIntent(Intent intent)
         {
             base.OnNewIntent(intent);
-             base.OnNewIntent(intent);
             CrossNfc.OnNewIntent(intent);
         }
     }

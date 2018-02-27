@@ -124,12 +124,6 @@
   <ItemGroup>
     <PackageReference Include="Xamarin.Forms" Version="2.5.0.280555" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\Plugin.Nfc\Plugin.Nfc.csproj">
-      <Project>{151ea2f0-09ea-42c5-b9e9-93eb9333ff61}</Project>
-      <Name>Plugin.Nfc</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <Import Project="..\NfcSampleApp\NfcSampleApp.projitems" Label="Shared" />
 </Project>
