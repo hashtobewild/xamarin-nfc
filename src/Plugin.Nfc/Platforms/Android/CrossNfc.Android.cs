@@ -17,7 +17,9 @@ namespace Plugin.Nfc
 
         public static void OnNewIntent(Intent intent)
         {
-            ((NfcImplementation)Current).CheckForNfcMessage(intent);
+            Console.WriteLine("OnNewIntent");
+            (Current as NfcImplementation).CheckForNfcMessage(intent);
+            Console.WriteLine(Current != null);
         }
 
         private static Activity GetCurrentActivity()
