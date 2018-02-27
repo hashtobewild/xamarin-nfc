@@ -15,9 +15,14 @@ namespace Plugin.Nfc
             _activityResolver = activityResolver;
         }
 
+        public static void ShowConsole(string message)
+        {
+            Console.WriteLine(message);
+        }
+
         public static void OnNewIntent(Intent intent)
         {
-            Console.WriteLine("OnNewIntent");
+            Console.WriteLine("Hello");
             (Current as NfcImplementation).CheckForNfcMessage(intent);
             Console.WriteLine(Current != null);
         }
