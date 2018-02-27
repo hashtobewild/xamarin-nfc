@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;netstandard1.0;Xamarin.iOS10;MonoAndroid71;</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;netstandard1.0;Xamarin.iOS10;MonoAndroid44;</TargetFrameworks>
     <AssemblyName>Plugin.Nfc</AssemblyName>
     <RootNamespace>Plugin.Nfc</RootNamespace>
     <Description>Nfc Plugin for Xamarin</Description>
@@ -12,39 +12,25 @@
     <RepositoryUrl>https://github.com/smstuebe/xamarin-nfc</RepositoryUrl>
     <PackageLicenseUrl>https://github.com/smstuebe/xamarin-nfc/blob/master/LICENSE</PackageLicenseUrl>
     <DebugType>pdbonly</DebugType>
-    
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <SourceLinkUrl>https://github.com/BlueChilli/xamarin-nfc/</SourceLinkUrl>
+    <LangVersion>default</LangVersion>
+    <!-- Workaround until Xamarin supports PPDB -->
+    <UseFullSemVerForNuGet>false</UseFullSemVerForNuGet>
+    <DebugType>full</DebugType>
+		
+		<DefineConstants>$(DefineConstants);</DefineConstants>
+  </PropertyGroup>
+  
+   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+     <DefineConstants>$(DefineConstants);NETSTANDARD2_0</DefineConstants>
     <NoWarn></NoWarn>
   </PropertyGroup>
   
-  <PropertyGroup Condition="'$(Platform)'=='AnyCPU'">
-    <DefineConstants>$(DefineConstants);PORTABLE</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>bin\Release\netstandard1.0\Plugin.Nfc.xml</DocumentationFile>
+    <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.0'">
+     <DefineConstants>$(DefineConstants);NETSTANDARD1_0</DefineConstants>
     <NoWarn></NoWarn>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
-    <DocumentationFile>bin\Release\netstandard2.0\Plugin.Nfc.xml</DocumentationFile>
-    <NoWarn></NoWarn>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Xamarin.iOS10|AnyCPU'">
-    <DocumentationFile>bin\Release\Xamarin.iOS10\Plugin.Nfc.xml</DocumentationFile>
-    <NoWarn></NoWarn>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|MonoAndroid71|AnyCPU'">
-    <DocumentationFile>bin\Release\MonoAndroid71\Plugin.Nfc.xml</DocumentationFile>
-    <NoWarn></NoWarn>
-  </PropertyGroup>
-  <ItemGroup>
-    <Compile Remove="Platforms\**" />
-    <Compile Remove="Resources\**" />
-    <None Include="Platforms\**" />
-    <None Include="Resources\**" />
-
-  </ItemGroup>
- 
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'Xamarin.iOS10'">
     <OutputType>Library</OutputType>
@@ -54,7 +40,7 @@
     <OutputType>Library</OutputType>
   </PropertyGroup>
   
-  <PropertyGroup Condition="'$(TargetFramework)' == 'MonoAndroid71'">
+  <PropertyGroup Condition="'$(TargetFramework)' == 'MonoAndroid44'">
     <TargetFrameworkIdentifier>MonoAndroid</TargetFrameworkIdentifier>
     <MonoAndroidResourcePrefix>Resources</MonoAndroidResourcePrefix>
     <MonoAndroidAssetsPrefix>Assets</MonoAndroidAssetsPrefix>
@@ -67,6 +53,24 @@
     </AndroidTlsProvider>
     <DefineConstants>$(DefineConstants);__ANDROID__</DefineConstants>
   </PropertyGroup>
+  
+  <ItemGroup>
+    <Compile Remove="Platforms\**" />
+    <Compile Remove="Resources\**" />
+    <None Include="Platforms\**" />
+    <None Include="Resources\**" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Compile Include="CrossNfc.cs" />
+    <Compile Include="INfc.cs" />
+  </ItemGroup>
+
+  	<ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.0' ">
+	</ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+  </ItemGroup>
   
   <ItemGroup>
     <Folder Include="Platforms\UWP\" />
@@ -85,7 +89,7 @@
     <Compile Include="Platforms\iOS\*.cs" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'MonoAndroid71' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'MonoAndroid44' ">
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Mono.Android" />
     <Reference Include="mscorlib" />

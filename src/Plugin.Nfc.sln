@@ -5,8 +5,8 @@ VisualStudioVersion = 15.0.27130.2036
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C45D2F6E-43B3-4EDD-ACA9-C40AB9177AC8}"
 	ProjectSection(SolutionItems) = preProject
-		..\Directory.build.props = ..\Directory.build.props
-		..\Directory.build.targets = ..\Directory.build.targets
+		Directory.build.props = Directory.build.props
+		Directory.build.targets = Directory.build.targets
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plugin.Nfc", "Plugin.Nfc\Plugin.Nfc.csproj", "{7E28D38A-C84D-44EF-85C1-B75E9BF44C3E}"

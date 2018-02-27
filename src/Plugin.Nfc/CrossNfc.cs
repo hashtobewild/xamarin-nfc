@@ -7,22 +7,47 @@ namespace Plugin.Nfc
     {
         private static Lazy<INfc> _implementation = new Lazy<INfc>(CreateNfc, LazyThreadSafetyMode.PublicationOnly);
         private static readonly Lazy<INfcDefRecordFactory> _factory = new Lazy<INfcDefRecordFactory>(CreateFactory, LazyThreadSafetyMode.PublicationOnly);
-        public static INfcDefRecordFactory CurrentFactory => _factory.Value;
+
+        public static bool IsSupported => _implementation.Value == null ? false : true;
+
+        public static INfcDefRecordFactory CurrentFactory
+        {
+            get
+            {
+                var ret = _factory.Value;
+                if (ret == null)
+                {
+                    NotImplementedInReferenceAssembly();
+                }
+                return ret;
+            }
+        }
 
         private static INfcDefRecordFactory CreateFactory()
         {
-#if PORTABLE
-            throw NotImplementedInReferenceAssembly();
+#if NETSTANDARD1_0 || NETSTANDARD2_0
+            return null;
 #else
             return new NfcDefRecordFactoryImplementation();
 #endif
         }
 
-        public static INfc Current => _implementation.Value;
+        public static INfc Current
+        {
+            get
+            {
+                var ret = _implementation.Value;
+                if (ret == null)
+                {
+                    NotImplementedInReferenceAssembly();
+                }
+                return ret;
+            }
+        }
 
         private static INfc CreateNfc()
         {
-#if PORTABLE
+#if NETSTANDARD1_0 || NETSTANDARD2_0
             throw NotImplementedInReferenceAssembly();
 #else
             return new NfcImplementation();
