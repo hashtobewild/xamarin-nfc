@@ -73,7 +73,9 @@ namespace Plugin.Nfc
 
         internal void CheckForNfcMessage(Intent intent)
         {
-            if (intent == null || !NfcAdapter.ActionNdefDiscovered.Equals(intent.Action)) return;
+            if (intent == null || !NfcAdapter.ActionNdefDiscovered.Equals(intent.Action) ||  
+                    !NfcAdapter.ActionTechDiscovered.Equals(intent.Action)|| 
+                        !NfcAdapter.ActionTagDiscovered.Equals(intent.Action)) return;
 
             if (intent.GetParcelableExtra(NfcAdapter.ExtraTag) is Tag tag)
             {
@@ -113,11 +115,11 @@ namespace Plugin.Nfc
         public void ShowNfcSettingDialog()
         {
             var activity = CrossNfc.CurrentActivity;
-            var builder = new AlertDialog.Builder(Application.Context);
+            var builder = new AlertDialog.Builder(activity);
             builder.SetTitle(Resource.String.nfc_setting_title);
             builder.SetMessage(Resource.String.nfc_setting_message);
             builder.SetPositiveButton("Settings", (sender, e) => {
-                 Application.Context.StartActivity(new Intent(Android.Provider.Settings.ActionNfcSettings));
+                 activity.StartActivity(new Intent(Android.Provider.Settings.ActionNfcSettings));
             });
             builder.SetNegativeButton("Close", (sender , e) =>
             {
