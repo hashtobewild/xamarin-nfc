@@ -77,9 +77,13 @@ namespace Plugin.Nfc
 
         internal void CheckForNfcMessage(Intent intent)
         {
-            if (intent == null || !NfcAdapter.ActionNdefDiscovered.Equals(intent.Action) ||  
-                    !NfcAdapter.ActionTechDiscovered.Equals(intent.Action)|| 
-                        !NfcAdapter.ActionTagDiscovered.Equals(intent.Action)) return;
+           if (intent == null || intent.Action != NfcAdapter.ActionNdefDiscovered ||  
+                    intent.Action != NfcAdapter.ActionTechDiscovered || 
+                       intent.Action != NfcAdapter.ActionTagDiscovered ) 
+            {
+                  Console.WriteLine("Wrong Intent Action");
+                  return;
+            };
 
             Console.WriteLine("Found Correct Intent");
  
