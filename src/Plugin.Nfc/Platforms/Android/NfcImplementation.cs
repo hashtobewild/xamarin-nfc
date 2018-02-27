@@ -28,8 +28,8 @@ namespace Plugin.Nfc
 
         public ValueTask<bool> IsAvailableAsync()
         {
-            var context = Application.Context;
-            return context.CheckCallingOrSelfPermission(Manifest.Permission.Nfc) != Permission.Granted ? new ValueTask<bool>(false) : new ValueTask<bool>(_nfcAdapter != null);
+            var activity = CrossNfc.CurrentActivity;;
+            return activity.CheckCallingOrSelfPermission(Manifest.Permission.Nfc) != Permission.Granted ? new ValueTask<bool>(false) : new ValueTask<bool>(_nfcAdapter != null);
         }
 
         public ValueTask<bool> IsEnabledAsync()
@@ -39,12 +39,17 @@ namespace Plugin.Nfc
 
         public async Task StartListeningAsync(CancellationToken token = default(CancellationToken))
         {
+            var activity = CrossNfc.CurrentActivity;
+           
             if (!await IsAvailableAsync())
                 throw new InvalidOperationException("NFC not available");
 
             if (!await IsEnabledAsync())
             {
-                ShowNfcSettingDialog();
+                activity.RunOnUiThread(() =>
+                {
+                    ShowNfcSettingDialog();
+                });
                 return;
             }
 
@@ -53,7 +58,6 @@ namespace Plugin.Nfc
                 _nfcAdapter?.DisableForegroundDispatch(CrossNfc.CurrentActivity);
             });
             
-            var activity = CrossNfc.CurrentActivity;
             var tagDetected = new IntentFilter(NfcAdapter.ActionNdefDiscovered);
             tagDetected.AddDataType("*/*");
             var filters = new[] { tagDetected };
@@ -77,28 +81,37 @@ namespace Plugin.Nfc
                     !NfcAdapter.ActionTechDiscovered.Equals(intent.Action)|| 
                         !NfcAdapter.ActionTagDiscovered.Equals(intent.Action)) return;
 
+            Console.WriteLine("Found Correct Intent");
+ 
+
             if (intent.GetParcelableExtra(NfcAdapter.ExtraTag) is Tag tag)
             {
                 var tagId = intent.GetParcelableExtra(NfcAdapter.ExtraId) as Java.Lang.String;
                 OnTagDiscovered(tag);
+                Console.WriteLine("Got the tag");
                 return;
             }
             
             var nativeMessages = intent.GetParcelableArrayExtra(NfcAdapter.ExtraNdefMessages);
             if (nativeMessages == null)
+            {
+                Console.WriteLine("Doesn't Contains the Message");
                 return;
+            }
 
             var records = nativeMessages
                 .Cast<NdefMessage>()
                 .SelectMany(m => m.GetRecords().Select(r => r))
                 .ToArray();
             
+            Console.WriteLine("Doesn't Contains the Tag but has the Native Messages");
             TagDetected?.Invoke(new NfcDefTag(null, records));
         }
 
         public void OnTagDiscovered(Tag tag)
         {
             var techs = tag.GetTechList();
+            Console.WriteLine(techs);
             if (!techs.Contains(Java.Lang.Class.FromType(typeof(Ndef)).Name))
                 return;
            
@@ -109,6 +122,7 @@ namespace Plugin.Nfc
             ndef.Close();
             var isWritable = ndef?.IsWritable ?? false;
             var nfcTag = new NfcDefTag(tag, records, isWritable);
+            Console.WriteLine("Created the NfcTag");
             TagDetected?.Invoke(nfcTag);
         }
 
