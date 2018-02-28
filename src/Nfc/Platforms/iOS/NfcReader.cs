@@ -42,7 +42,7 @@ namespace Plugin.Nfc
             if (readerError != NFCReaderError.ReaderSessionInvalidationErrorFirstNDEFTagRead &&
                 readerError != NFCReaderError.ReaderSessionInvalidationErrorUserCanceled)
             {
-                _tcs.TrySetException(new Exception(error.LocalizedFailureReason));
+                _tcs.TrySetException(new NfcReadException(error.LocalizedFailureReason));
             }
             else if (readerError == NFCReaderError.ReaderSessionInvalidationErrorUserCanceled)
             {
@@ -50,7 +50,7 @@ namespace Plugin.Nfc
             }
             else
             {
-                _tcs.TrySetException(new Exception(error.LocalizedFailureReason));
+                _tcs.TrySetException(new NfcReadException(error.LocalizedFailureReason));
             }
           
             

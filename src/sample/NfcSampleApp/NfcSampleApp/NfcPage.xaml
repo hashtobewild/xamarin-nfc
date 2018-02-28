@@ -8,7 +8,6 @@
                   VerticalOptions="FillAndExpand"
                   HasUnevenRows="True"
                   CachingStrategy="RecycleElement">
-            
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <ViewCell>

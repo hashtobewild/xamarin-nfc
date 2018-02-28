@@ -25,5 +25,10 @@ namespace Plugin.Nfc
         {
            return new ValueTask<bool>(true);
         }
+
+        public void Dispose()
+        {
+           
+        }
     }
 }

@@ -24,6 +24,7 @@ namespace NfcSampleApp
             NfcTagList.ItemsSource = _defTag.Records;
 
             CrossNfc.Current.TagDetected += Current_TagDetected;
+            CrossNfc.Current.TagError += Current_TagError;
 
             this.Button.Command = new Command(async () =>
             {
@@ -37,56 +38,43 @@ namespace NfcSampleApp
             });
 		}
 
-        private void Current_TagDetected(INfcDefTag tag)
+        private void Current_TagError(TagErrorEventArgs args)
         {
-            _tag = tag;
+            Console.WriteLine(args.Exception?.ToString());
+        }
+
+        private void Current_TagDetected(TagDetectedEventArgs args)
+        {
+            _tag = args.Tag;
 
             _defTag.IsWritable = _tag.IsWriteable;
             _defTag.TagId = _tag.TagId;
             
-            var records = new List<Record>();
+            var records = new List<INfcDefRecord>();
+
             foreach(var record  in _tag.Records)
             {
-                records.Add(new Record()
-                {
-                    TypeNameFormat = record.TypeNameFormat.ToString(),
-                    Payload =  System.Text.Encoding.Default.GetString(record.Payload)
-                });
+                records.Add(CrossNfc.CurrentConverter.ConvertFrom(record));
             }
+
+            _defTag.Records.AddRange(records);
         }
 
         protected async override void OnDisappearing()
         {
             base.OnDisappearing();
             CrossNfc.Current.TagDetected -= Current_TagDetected;
+            CrossNfc.Current.TagError -= Current_TagError;
             await CrossNfc.Current.StopListeningAsync();
 
         }
     }
 
-     public class Record : ObservableObject
-    {
-        private string _typeFormat;
-        public string TypeNameFormat
-        {
-            get => _typeFormat;
-            set => SetProperty(ref _typeFormat, value);
-        }
-
-        private string _payload;
-        public string Payload
-        {
-            get => _payload;
-            set => SetProperty(ref _payload, value);
-        }
-    }
-
-   
     public class DefTag : ObservableObject
     {
         public DefTag()
         {
-            Records = new ObservableRangeCollection<Record>();
+            Records = new ObservableRangeCollection<INfcDefRecord>();
         }
 
         private string _tagId;
@@ -103,7 +91,7 @@ namespace NfcSampleApp
             set => SetProperty(ref _isWritable, value);
         }
 
-        public ObservableRangeCollection<Record> Records {get;}
+        public ObservableRangeCollection<INfcDefRecord> Records {get;}
 
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,43 +12,43 @@ namespace Plugin.Nfc
          * RTD Text type. For use with {@literal TNF_WELL_KNOWN}.
          * @see #TNF_WELL_KNOWN
          */
-        public static byte[] RTD_TEXT = {0x54};  // "T"
+        public const string RTD_TEXT = "T";
 
         /**
          * RTD URI type. For use with {@literal TNF_WELL_KNOWN}.
          * @see #TNF_WELL_KNOWN
          */
-        public static byte[] RTD_URI = {0x55};   // "U"
+        public const string RTD_URI = "U";
 
         /**
          * RTD Smart Poster type. For use with {@literal TNF_WELL_KNOWN}.
          * @see #TNF_WELL_KNOWN
          */
-        public static byte[] RTD_SMART_POSTER = {0x53, 0x70};  // "Sp"
+        public const string RTD_SMART_POSTER = "Sp";
 
         /**
          * RTD Alternative Carrier type. For use with {@literal TNF_WELL_KNOWN}.
          * @see #TNF_WELL_KNOWN
          */
-        public static byte[] RTD_ALTERNATIVE_CARRIER = {0x61, 0x63};  // "ac"
+        public const string RTD_ALTERNATIVE_CARRIER = "ac";
 
         /**
          * RTD Handover Carrier type. For use with {@literal TNF_WELL_KNOWN}.
          * @see #TNF_WELL_KNOWN
          */
-        public static byte[] RTD_HANDOVER_CARRIER = {0x48, 0x63};  // "Hc"
+        public const string RTD_HANDOVER_CARRIER = "Hc";
 
         /**
          * RTD Handover Request type. For use with {@literal TNF_WELL_KNOWN}.
          * @see #TNF_WELL_KNOWN
          */
-        public static byte[] RTD_HANDOVER_REQUEST = {0x48, 0x72};  // "Hr"
+        public const string RTD_HANDOVER_REQUEST =  "Hr";
 
         /**
          * RTD Handover Select type. For use with {@literal TNF_WELL_KNOWN}.
          * @see #TNF_WELL_KNOWN
          */
-        public static byte[] RTD_HANDOVER_SELECT = {0x48, 0x73}; // "Hs"
+        public const string RTD_HANDOVER_SELECT = "Hs";
 
         /**
          * RTD Android app type. For use with {@literal TNF_EXTERNAL}.
@@ -61,21 +62,43 @@ namespace Plugin.Nfc
          * RTD_ANDROID_APP records.
          * @hide
          */
-        public static byte[] RTD_ANDROID_APP = Encoding.UTF8.GetBytes("android.com:pkg");
+        public const string RTD_ANDROID_APP = "android.com:pkg";
     }
 
-    public delegate void TagDetectedDelegate(INfcDefTag tag);
+    public class TagDetectedEventArgs : EventArgs
+    {
+        public TagDetectedEventArgs(INfcDefTag tag)
+        {
+            Tag = tag;
+        }
+
+        public INfcDefTag Tag {get; }
+    }
+
+    public class TagErrorEventArgs : EventArgs
+    {
+        public TagErrorEventArgs(Exception ex)
+        {
+            Exception = ex;
+        }
+
+        public Exception Exception {get;}
+    }
+
+    public delegate void TagDetectedDelegate(TagDetectedEventArgs args);
+    public delegate void TagErrorDelegate(TagErrorEventArgs args);
 
     public interface INfc
     {
         event TagDetectedDelegate TagDetected;
+        event TagErrorDelegate TagError;
         ValueTask<bool> IsAvailableAsync();
         ValueTask<bool> IsEnabledAsync();
         Task StartListeningAsync(CancellationToken token = default(CancellationToken));
         Task StopListeningAsync();
     }
 
-    public interface INfcDefTag
+    public interface INfcDefTag : IDisposable
     {
         string TagId { get;}
         bool IsWriteable { get; }
@@ -146,7 +169,8 @@ namespace Plugin.Nfc
             get
             {
                 if(Payload == null || Payload.Length <= 0) return Encoding.UTF8;
-                return ((Payload[0] & 0x80) == 0) ?  Encoding.Unicode : Encoding.UTF8;
+                var isUnicode = Convert.ToBoolean((Payload[0] & 0x80));
+                return (isUnicode) ?  Encoding.Unicode : Encoding.UTF8;
             }
         }
        
@@ -240,22 +264,70 @@ namespace Plugin.Nfc
 
     public class UriRecord : NfcRecord
     {
+         private static Dictionary<byte, string> UriPrefixMap = new  Dictionary<byte, string>() {
+                {0x00, ""}, // 0x00
+                {0x01, "http://www."},
+                {0x02, "https://www."},
+                {0x03, "http://"},
+                {0x04, "https://"},
+                {0x05, "tel:"},
+                {0x06, "mailto:"},
+                {0x07, "ftp://anonymous:anonymous@"},
+                {0x08, "ftp://ftp."},
+                {0x09, "ftps://"},
+                {0x0A, "sftp://"},
+                {0x0B, "smb://"},
+                {0x0C, "nfs://"},
+                {0x0D, "ftp://"},
+                {0x0E, "dav://"},
+                {0x0F, "news:"},
+                {0x10, "telnet://"},
+                {0x11, "imap:"},
+                {0x12, "rtsp://"},
+                {0x13, "urn:"},
+                {0x14, "pop:"},
+                {0x15, "sip:"},
+                {0x16, "sips:"},
+                {0x17, "tftp:"},
+                {0x18, "btspp://"},
+                {0x19, "btl2cap://"},
+                {0x1A, "btgoep://"},
+                {0x1B, "tcpobex://"},
+                {0x1C, "irdaobex://"},
+                {0x1D, "file://"},
+                {0x1E, "urn:epc:id:"},
+                {0x1F, "urn:epc:tag:"},
+                {0x20, "urn:epc:tag:"},
+                {0x21, "urn:epc:raw:"},
+                {0x22, "urn:epc:"}
+             
+        };
+
         public UriRecord(NfcDefRecord record)
         {
-            Prefix = Encoding.UTF8.GetString(record.Payload, 0, 1);
-            var url = Encoding.UTF8.GetString(record.Payload, 1, record.Payload.Length);
-            Uri = new Uri(url);
+            if(UriPrefixMap.ContainsKey(record.Payload[0]))
+            {
+               Prefix = UriPrefixMap[record.Payload[0]];
+            }
+
+            var url = record.EncodedWith.GetString(record.Payload, 1, record.Payload.Length - 1);
+            Url = !String.IsNullOrWhiteSpace(Prefix) ? new Uri(String.Format("{0}{1}", Prefix, url)) : new Uri(url);
         }
 
         public override NfcDefRecordType RecordType => NfcDefRecordType.Uri;
 
         public string Prefix {get;}
-        public Uri Uri {get;}
+        public Uri Url {get;}
     }
 
-    public static class NfcDefPayloadParser
+    public interface INfcDefRecordConverter
     {
-        public static INfcDefRecord Parse(NfcDefRecord record)
+        INfcDefRecord ConvertFrom(NfcDefRecord record);
+    }
+
+    public class NfcDefRecordConverter : INfcDefRecordConverter
+    {
+        public INfcDefRecord ConvertFrom(NfcDefRecord record)
         {
             if(record == null) throw new ArgumentNullException(nameof(record));
             
@@ -265,6 +337,9 @@ namespace Plugin.Nfc
 
             if(record.TypeNameFormat == NDefTypeNameFormat.Empty || record.TypeNameFormat == NDefTypeNameFormat.Unknown) return new UnknownRecord();
 
+
+            var type = Encoding.UTF8.GetString(record.TypeInfo, 0, record.TypeInfo.Length);
+
             if(record.TypeNameFormat == NDefTypeNameFormat.AbsoluteUri)
             {
                 return new UriRecord(record);
@@ -272,7 +347,7 @@ namespace Plugin.Nfc
            
             if(record.TypeNameFormat ==  NDefTypeNameFormat.External)
             {
-                if(record.TypeInfo == NfcRecordTypeConstants.RTD_ANDROID_APP)
+                if(type == NfcRecordTypeConstants.RTD_ANDROID_APP)
                 {
                     return new ApplicationRecord(record);
                 }
@@ -282,11 +357,11 @@ namespace Plugin.Nfc
             
             if(record.TypeNameFormat == NDefTypeNameFormat.WellKnown)
             {
-                if(record.TypeInfo == NfcRecordTypeConstants.RTD_URI)
+                if(type == NfcRecordTypeConstants.RTD_URI)
                 {
                     return new UriRecord(record);
                 }
-                else if(record.TypeInfo == NfcRecordTypeConstants.RTD_TEXT)
+                else if(type == NfcRecordTypeConstants.RTD_TEXT)
                 {
                     return new TextRecord(record);
                 }

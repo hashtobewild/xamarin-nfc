@@ -14,11 +14,11 @@ namespace Plugin.Nfc
         public NfcDefRecord[] Records { get; }
         public string TagId {get;}
 
-        private Tag _tag;
-        public NfcDefTag(Tag tag , IEnumerable<NdefRecord> records, bool isWritable = false, string id = null)
+        private Ndef _tag;
+        public NfcDefTag(Ndef tag , IEnumerable<NdefRecord> records, string id = null)
         {
             _tag = tag;
-            IsWriteable = isWritable;
+            IsWriteable = tag?.IsWritable ?? false;
             TagId = id;
             Records = records
                 .Select(r => new AndroidNdefRecord(r))
@@ -28,11 +28,13 @@ namespace Plugin.Nfc
         public async ValueTask<bool> WriteMessage(NfcDefMessage message)
         {
             if (!IsWriteable) return false;
+            if(message == null || message.Records.Length == 0) return false;
+
             var records = message.Records.Cast<AndroidNdefRecord>().Select(m => m.ToNdefRecord()).ToArray();
             var msg = new NdefMessage(records);
             try
             {
-                var ndef = Ndef.Get(_tag);
+                var ndef = _tag;
 
                 if (ndef != null)
                 {
@@ -51,7 +53,7 @@ namespace Plugin.Nfc
                     return true;
                 }
                 
-                var nDefFormatableTag = NdefFormatable.Get(_tag);
+                var nDefFormatableTag = NdefFormatable.Get(_tag.Tag);
                 try
                 {
                     await nDefFormatableTag.ConnectAsync();
@@ -59,14 +61,24 @@ namespace Plugin.Nfc
                     nDefFormatableTag.Close();
                     //The data is written to the tag
                     return true;
-                } catch (IOException ex) {
+                } catch (Exception ex) {
                     //Failed to format tag
                     return false;
                 }
           
             } catch (Exception ex) {
-                throw new ApplicationException("Writing to Nfc Tag failed", ex);
+                throw new NfcWriteException(ex);
             }
         }
+
+        public void Dispose()
+        {
+           if(_tag != null)
+            {
+                _tag.Dispose();
+                _tag = null;
+            }
+        }
+
     }
 }

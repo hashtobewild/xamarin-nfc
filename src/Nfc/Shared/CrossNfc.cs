@@ -6,9 +6,28 @@ namespace Plugin.Nfc
     public partial class CrossNfc
     {
         private static Lazy<INfc> _implementation = new Lazy<INfc>(CreateNfc, LazyThreadSafetyMode.PublicationOnly);
-        private static readonly Lazy<INfcDefRecordFactory> _factory = new Lazy<INfcDefRecordFactory>(CreateFactory, LazyThreadSafetyMode.PublicationOnly);
+        private static Lazy<INfcDefRecordFactory> _factory = new Lazy<INfcDefRecordFactory>(CreateFactory, LazyThreadSafetyMode.PublicationOnly);
+        private static Lazy<INfcDefRecordConverter> _converter = new Lazy<INfcDefRecordConverter>(CreateConverter,LazyThreadSafetyMode.PublicationOnly);
+
+        private static INfcDefRecordConverter CreateConverter()
+        {
+            return new NfcDefRecordConverter();
+        }
 
         public static bool IsSupported => _implementation.Value == null ? false : true;
+
+        public static INfcDefRecordConverter CurrentConverter
+        {
+            get
+            {
+                var ret = _converter.Value;
+                if (ret == null)
+                {
+                    NotImplementedInReferenceAssembly();
+                }
+                return ret;
+            }
+        }
 
         public static INfcDefRecordFactory CurrentFactory
         {
@@ -59,6 +78,16 @@ namespace Plugin.Nfc
             if (_implementation != null && _implementation.IsValueCreated)
             {
                 _implementation = new Lazy<INfc>(CreateNfc, LazyThreadSafetyMode.PublicationOnly);
+            }
+
+            if (_factory != null && _factory.IsValueCreated)
+            {
+                _factory = new Lazy<INfcDefRecordFactory>(CreateFactory, LazyThreadSafetyMode.PublicationOnly);
+            }
+
+            if (_converter != null && _converter.IsValueCreated)
+            {
+                _converter = new Lazy<INfcDefRecordConverter>(CreateConverter, LazyThreadSafetyMode.PublicationOnly);
             }
         }
 

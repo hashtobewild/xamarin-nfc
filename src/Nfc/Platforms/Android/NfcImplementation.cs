@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
 using System.Threading;
 using System.Threading.Tasks;
 using Android;
@@ -17,11 +16,10 @@ namespace Plugin.Nfc
     {
         private readonly NfcAdapter _nfcAdapter;
         public event TagDetectedDelegate TagDetected;
+        public event TagErrorDelegate TagError;
 
         public NfcImplementation()
         {
-            if (Build.VERSION.SdkInt < BuildVersionCodes.Kitkat)
-                return;
             _nfcAdapter = NfcAdapter.GetDefaultAdapter(CrossNfc.CurrentActivity);
             
         }
@@ -55,15 +53,32 @@ namespace Plugin.Nfc
 
             token.Register(() =>
             {
-                _nfcAdapter?.DisableForegroundDispatch(CrossNfc.CurrentActivity);
+                if (Build.VERSION.SdkInt >= BuildVersionCodes.Kitkat)
+                {
+                    _nfcAdapter?.DisableReaderMode(CrossNfc.CurrentActivity);
+                }
+                else
+                {
+                    _nfcAdapter?.DisableForegroundDispatch(CrossNfc.CurrentActivity);
+                }
+
             });
             
-            var tagDetected = new IntentFilter(NfcAdapter.ActionNdefDiscovered);
-            tagDetected.AddDataType("*/*");
-            var filters = new[] { tagDetected };
-            var intent = new Intent(activity, activity.GetType()).AddFlags(ActivityFlags.SingleTop);
-            var pendingIntent = PendingIntent.GetActivity(activity, 0, intent, 0);
-            _nfcAdapter.EnableForegroundDispatch(activity, pendingIntent, filters, new[] { new[] { Java.Lang.Class.FromType(typeof(Ndef)).Name } });
+
+            if (Build.VERSION.SdkInt >= BuildVersionCodes.Kitkat)
+            {
+               _nfcAdapter?.EnableReaderMode(CrossNfc.CurrentActivity, this, NfcReaderFlags.NfcA |  NfcReaderFlags.NfcB | NfcReaderFlags.NfcBarcode | NfcReaderFlags.NfcF | NfcReaderFlags.NfcV, new Bundle());
+            }
+            else
+            {
+                var tagDetected = new IntentFilter(NfcAdapter.ActionNdefDiscovered);
+                tagDetected.AddDataType("*/*");
+                var filters = new[] { tagDetected };
+                var intent = new Intent(activity, activity.GetType()).AddFlags(ActivityFlags.SingleTop);
+                var pendingIntent = PendingIntent.GetActivity(activity, 0, intent, 0);
+                _nfcAdapter.EnableForegroundDispatch(activity, pendingIntent, filters, new[] { new[] { Java.Lang.Class.FromType(typeof(Ndef)).Name } });
+            }
+
         }
 
         public async Task StopListeningAsync()
@@ -71,35 +86,36 @@ namespace Plugin.Nfc
             var activity = CrossNfc.CurrentActivity;
             activity?.RunOnUiThread(() =>
             {
-                 _nfcAdapter?.DisableForegroundDispatch(CrossNfc.CurrentActivity);
+                if (Build.VERSION.SdkInt >= BuildVersionCodes.Kitkat)
+                {
+                    _nfcAdapter?.DisableReaderMode(CrossNfc.CurrentActivity);
+                }
+                else
+                {
+                    _nfcAdapter?.DisableForegroundDispatch(CrossNfc.CurrentActivity);
+                }
             });
         }
 
         internal void CheckForNfcMessage(Intent intent)
         {
-           if (intent == null || intent.Action != NfcAdapter.ActionNdefDiscovered ||  
-                    intent.Action != NfcAdapter.ActionTechDiscovered || 
-                       intent.Action != NfcAdapter.ActionTagDiscovered ) 
+            var actions = new[] {NfcAdapter.ActionNdefDiscovered.ToLower(),  NfcAdapter.ActionTechDiscovered.ToLower(),  NfcAdapter.ActionTagDiscovered.ToLower()};
+            
+            if (intent == null || !actions.Contains(intent.Action.ToLower())) 
             {
-                  Console.WriteLine("Wrong Intent Action");
-                  return;
+                    return;
             };
-
-            Console.WriteLine("Found Correct Intent");
- 
-
+            
             if (intent.GetParcelableExtra(NfcAdapter.ExtraTag) is Tag tag)
             {
                 var tagId = intent.GetParcelableExtra(NfcAdapter.ExtraId) as Java.Lang.String;
                 OnTagDiscovered(tag);
-                Console.WriteLine("Got the tag");
                 return;
             }
             
             var nativeMessages = intent.GetParcelableArrayExtra(NfcAdapter.ExtraNdefMessages);
             if (nativeMessages == null)
             {
-                Console.WriteLine("Doesn't Contains the Message");
                 return;
             }
 
@@ -108,29 +124,33 @@ namespace Plugin.Nfc
                 .SelectMany(m => m.GetRecords().Select(r => r))
                 .ToArray();
             
-            Console.WriteLine("Doesn't Contains the Tag but has the Native Messages");
-            TagDetected?.Invoke(new NfcDefTag(null, records));
+            TagDetected?.Invoke(new TagDetectedEventArgs(new NfcDefTag(null, records)));
         }
 
         public void OnTagDiscovered(Tag tag)
         {
             var techs = tag.GetTechList();
-            Console.WriteLine(techs);
             if (!techs.Contains(Java.Lang.Class.FromType(typeof(Ndef)).Name))
                 return;
            
-            var ndef = Ndef.Get(tag);
-            ndef.Connect();
-            var ndefMessage = ndef.NdefMessage;
-            var records = ndefMessage.GetRecords();
-            ndef.Close();
-            var isWritable = ndef?.IsWritable ?? false;
-            var nfcTag = new NfcDefTag(tag, records, isWritable);
-            Console.WriteLine("Created the NfcTag");
-            TagDetected?.Invoke(nfcTag);
+            try
+            {
+               var ndef = Ndef.Get(tag);
+               ndef.Connect();
+               var ndefMessage = ndef.NdefMessage;
+               var records = ndefMessage.GetRecords();
+               ndef.Close();
+               var isWritable = ndef?.IsWritable ?? false;
+               var nfcTag = new NfcDefTag(ndef, records);
+               TagDetected?.Invoke(new TagDetectedEventArgs(nfcTag));
+            }
+            catch(Exception ex)
+            {
+                TagError?.Invoke(new TagErrorEventArgs(new NfcReadException(ex)));
+            }
         }
 
-        public void ShowNfcSettingDialog()
+        private void ShowNfcSettingDialog()
         {
             var activity = CrossNfc.CurrentActivity;
             var builder = new AlertDialog.Builder(activity);
@@ -145,8 +165,15 @@ namespace Plugin.Nfc
             });
 
             builder.Show();
+        }
 
-              
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            if(disposing)
+            {
+                _nfcAdapter.Dispose();
+            }
         }
     }
 }
