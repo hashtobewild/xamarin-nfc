@@ -67,7 +67,8 @@ namespace Plugin.Nfc
 
             if (Build.VERSION.SdkInt >= BuildVersionCodes.Kitkat)
             {
-               _nfcAdapter?.EnableReaderMode(CrossNfc.CurrentActivity, this, NfcReaderFlags.NfcA |  NfcReaderFlags.NfcB | NfcReaderFlags.NfcBarcode | NfcReaderFlags.NfcF | NfcReaderFlags.NfcV, new Bundle());
+                Bundle options = new Bundle();
+                _nfcAdapter?.EnableReaderMode(CrossNfc.CurrentActivity, this, NfcReaderFlags.NfcA |  NfcReaderFlags.NfcB | NfcReaderFlags.NfcBarcode | NfcReaderFlags.NfcF | NfcReaderFlags.NfcV, options);
             }
             else
             {
@@ -138,6 +139,13 @@ namespace Plugin.Nfc
                var ndef = Ndef.Get(tag);
                ndef.Connect();
                var ndefMessage = ndef.NdefMessage;
+
+               if(ndefMessage == null)
+               {
+                 TagError?.Invoke(new TagErrorEventArgs(new NfcReadException("There is no data registered in the NFC tag")));
+                 return;
+               }
+
                var records = ndefMessage.GetRecords();
                ndef.Close();
                var isWritable = ndef?.IsWritable ?? false;

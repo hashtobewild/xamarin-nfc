@@ -318,6 +318,7 @@ namespace Plugin.Nfc
 
         public string Prefix {get;}
         public Uri Url {get;}
+        public string UrlString => Url?.AbsoluteUri;
     }
 
     public interface INfcDefRecordConverter

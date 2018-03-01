@@ -26,7 +26,6 @@ namespace NfcSampleApp.Droid
 
             global::Xamarin.Forms.Forms.Init(this, bundle);
             LoadApplication(new App());
-            CrossNfc.OnNewIntent(Intent);
         }
 
         protected override void OnNewIntent(Intent intent)

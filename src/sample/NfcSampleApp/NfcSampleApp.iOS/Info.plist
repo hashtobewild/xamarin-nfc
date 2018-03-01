@@ -25,9 +25,7 @@
 	<key>CFBundleDisplayName</key>
 	<string>NfcSampleApp</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.yourcompany.NfcSampleApp</string>
-	<key>CFBundleVersion</key>
-	<string>1.0</string>
+	<string>com.bluechilli.d.NfcSampleApp</string>
 	<key>CFBundleIconFiles</key>
 	<array>
 		<string>Icon-60@2x</string>
@@ -50,5 +48,13 @@
 	<string>LaunchScreen</string>
 	<key>CFBundleName</key>
 	<string>NfcSampleApp</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1</string>
+	<key>CFBundleVersion</key>
+	<string>0.0.1</string>
+	<key>UIMainStoryboardFile</key>
+	<string>LaunchScreen</string>
+	<key>NFCReaderUsageDescription</key>
+	<string>NFC Test</string>
 </dict>
 </plist>

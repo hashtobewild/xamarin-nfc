@@ -13,7 +13,7 @@ namespace NfcSampleApp
 		{
 			InitializeComponent();
 
-			MainPage = new NfcSampleApp.NfcPage();
+			MainPage = new NfcSampleApp.NfcTabs();
 		}
 
 		protected override void OnStart ()
