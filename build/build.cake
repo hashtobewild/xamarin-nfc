@@ -236,7 +236,7 @@ Action<string> build = (solution) =>
 	{			
   		var msBuildPath = GetMsBuildPath();
 	
-		Information("MSBuild: {0}", msBuildPath);
+		Information("MSBuild: {0} - Nuget: {1}", msBuildPath, nugetVersion);
 		
     	MSBuild(solution, settings => {
 			settings
@@ -248,6 +248,7 @@ Action<string> build = (solution) =>
 
 			settings.WithTarget("restore;pack");
 	
+			
 			settings
 			.WithProperty("SourceLinkEnabled",  isCI)
 			.WithProperty("PackageOutputPath",  MakeAbsolute(Directory(artifactDirectory)).ToString())

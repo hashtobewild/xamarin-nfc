@@ -7,17 +7,13 @@
     <PackageId>Plugin.Nfc</PackageId>
     
     <Product>$(AssemblyName) ($(TargetFramework))</Product>
-    <AssemblyVersion>1.4.4.0</AssemblyVersion>
-    <AssemblyFileVersion>1.4.4.0</AssemblyFileVersion>
-    <Version>1.4.4.0</Version>
-    <PackageVersion>1.4.4.0</PackageVersion>
     <NeutralLanguage>en</NeutralLanguage>
     <LangVersion>default</LangVersion>
     <DefineConstants>$(DefineConstants);</DefineConstants>
     <GenerateDocumentationFile Condition=" '$(Configuration)' == 'Release' ">true</GenerateDocumentationFile>
     <UseFullSemVerForNuGet>false</UseFullSemVerForNuGet>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-    
+
     <!--TODO: Fill these in-->
     <PackageLicenseUrl>https://github.com/smstuebe/xamarin-nfc/blob/master/LICENSE</PackageLicenseUrl>
     <RepositoryUrl>https://github.com/smstuebe/xamarin-nfc</RepositoryUrl>
