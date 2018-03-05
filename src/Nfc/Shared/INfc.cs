@@ -92,10 +92,10 @@ namespace Plugin.Nfc
     {
         event TagDetectedDelegate TagDetected;
         event TagErrorDelegate TagError;
-        ValueTask<bool> IsAvailableAsync();
-        ValueTask<bool> IsEnabledAsync();
-        Task StartListeningAsync(CancellationToken token = default(CancellationToken));
-        Task StopListeningAsync();
+        bool IsAvailable();
+        bool IsEnabled();
+        void StartListening();
+        void StopListening();
     }
 
     public interface INfcDefTag : IDisposable
@@ -103,7 +103,7 @@ namespace Plugin.Nfc
         string TagId { get;}
         bool IsWriteable { get; }
         NfcDefRecord[] Records { get; }
-        ValueTask<bool> WriteMessage(NfcDefMessage message);
+        Task<bool> WriteMessage(NfcDefMessage message);
     }
 
     public interface INfcDefRecordFactory

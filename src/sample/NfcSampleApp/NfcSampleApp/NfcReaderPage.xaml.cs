@@ -8,7 +8,7 @@ using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using Plugin.Nfc;
 using System.Threading;
-
+using Plugin.Toasts;
 
 namespace NfcSampleApp
 {
@@ -28,11 +28,11 @@ namespace NfcSampleApp
             this.BindingContext = _defTag;
             NfcTagList.ItemTemplate = new NfcReaderListTemplate()
 		    {
-		        ApplicationRecordTemplate = new DataTemplate(typeof(ApplicationRecordCell)),
-                ExternalRecordTemplate = new DataTemplate(typeof(ExternalRecordCell)),
-                MimeRecordTemplate = new DataTemplate(typeof(MimeRecordCell)),
-                TextRecordTemplate = new DataTemplate(typeof(TextRecordCell)),
-                UrlRecordTemplate = new DataTemplate(typeof(UriRecordCell)),
+		        ApplicationRecordTemplate = new DataTemplate(typeof(ApplicationRecordWriteCell)),
+                ExternalRecordTemplate = new DataTemplate(typeof(ExternalRecordWriteCell)),
+                MimeRecordTemplate = new DataTemplate(typeof(MimeRecordWriteCell)),
+                TextRecordTemplate = new DataTemplate(typeof(TextRecordWriteCell)),
+                UrlRecordTemplate = new DataTemplate(typeof(UriRecordWriteCell)),
                 UnknownRecordTemplate = new DataTemplate(typeof(UnknownRecordCell))
 		    };
 
@@ -40,9 +40,17 @@ namespace NfcSampleApp
          
 		}
 
-        private void Current_TagError(TagErrorEventArgs args)
+        private async void Current_TagError(TagErrorEventArgs args)
         {
-            Console.WriteLine(args.Exception?.ToString());
+            var notificator = DependencyService.Get<IToastNotificator>();
+
+            var options = new NotificationOptions()
+                        {
+                            Title = "Error",
+                            Description = args.Exception.ToString()
+                        };
+
+            var result = await notificator.Notify(options);
         }
 
         private void Current_TagDetected(TagDetectedEventArgs args)
@@ -62,21 +70,24 @@ namespace NfcSampleApp
             _defTag.Records.AddRange(records);
         }
 
-        protected async override void OnAppearing()
+        protected override void OnAppearing()
         {
             CrossNfc.Current.TagDetected += Current_TagDetected;
             CrossNfc.Current.TagError += Current_TagError;
-            await CrossNfc.Current.StartListeningAsync();
+            if(CrossNfc.Current.IsAvailable())
+            {
+                CrossNfc.Current.StartListening();
+            }
 
             base.OnAppearing();
         }
 
-        protected async override void OnDisappearing()
+        protected override void OnDisappearing()
         {
             base.OnDisappearing();
             CrossNfc.Current.TagDetected -= Current_TagDetected;
             CrossNfc.Current.TagError -= Current_TagError;
-            await CrossNfc.Current.StopListeningAsync();
+            CrossNfc.Current.StopListening();
 
         }
 

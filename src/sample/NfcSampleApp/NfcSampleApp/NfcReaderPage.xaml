@@ -3,17 +3,12 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="NfcSampleApp.NfcReaderPage">
     <ContentPage.Content>
-       <StackLayout HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" Padding="10">
-           <StackLayout HorizontalOptions="Center" Spacing="20" Orientation="Horizontal">
-                <Label Text="IsWritable"/>
-                <Label Text="{Binding IsWritable}"/>
-            </StackLayout>
+       <StackLayout HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" Padding="20">
             <ListView x:Name="NfcTagList" HorizontalOptions="FillAndExpand" 
                       VerticalOptions="FillAndExpand"
                       HasUnevenRows="True"
                       CachingStrategy="RecycleElement">
- s          </ListView>
-        
-    </StackLayout>
+           </ListView>
+        </StackLayout>
     </ContentPage.Content>
 </ContentPage>

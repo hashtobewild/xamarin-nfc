@@ -7,9 +7,20 @@ namespace Plugin.Nfc
         public iOSNdefRecord(NFCNdefPayload nativeRecord)
         {
             TypeNameFormat = GetTypeNameFormat(nativeRecord.TypeNameFormat);
-            Payload = nativeRecord.Payload?.ToArray();
-            TypeInfo = nativeRecord.Type?.ToArray();
-            Id = nativeRecord.Identifier?.ToArray();
+            if(nativeRecord.Payload != null && nativeRecord.Payload.Length > 0)
+            {
+                Payload = nativeRecord.Payload?.ToArray();
+            }
+            
+            if(nativeRecord.Type != null && nativeRecord.Type.Length > 0)
+            {
+                TypeInfo = nativeRecord.Type.ToArray();
+            }
+    
+            if(nativeRecord.Identifier != null && nativeRecord.Identifier.Length > 0)
+            {
+                Id = nativeRecord.Identifier.ToArray();
+            }
         }
 
         private NDefTypeNameFormat GetTypeNameFormat(NFCTypeNameFormat nativeTypeNameFormat)

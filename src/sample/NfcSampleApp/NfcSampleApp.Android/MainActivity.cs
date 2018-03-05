@@ -9,6 +9,8 @@ using Android.OS;
 using Android.Nfc;
 using Plugin.Nfc;
 using Android.Content;
+using Xamarin.Forms;
+using Plugin.Toasts;
 
 namespace NfcSampleApp.Droid
 {
@@ -25,6 +27,8 @@ namespace NfcSampleApp.Droid
             base.OnCreate(bundle);
 
             global::Xamarin.Forms.Forms.Init(this, bundle);
+            DependencyService.Register<ToastNotification>(); // Register your dependency
+            ToastNotification.Init(this);
             LoadApplication(new App());
         }
 

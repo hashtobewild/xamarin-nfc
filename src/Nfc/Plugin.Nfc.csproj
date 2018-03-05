@@ -48,7 +48,6 @@
   
   <ItemGroup>
     <PackageReference Include="MSBuild.Sdk.Extras" Version="1.2.0" PrivateAssets="All" />
-    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.4.0" />
     <Compile Include="Shared\**\*.cs" />
   </ItemGroup>
 

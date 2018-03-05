@@ -10,9 +10,9 @@ using Xamarin.Forms.Xaml;
 namespace NfcSampleApp
 {
 	[XamlCompilation(XamlCompilationOptions.Compile)]
-	public partial class MimeRecordCell : ViewCell
+	public partial class TextRecordWriteCell : ViewCell
 	{
-		public MimeRecordCell ()
+		public TextRecordWriteCell ()
 		{
 			InitializeComponent ();
 		}

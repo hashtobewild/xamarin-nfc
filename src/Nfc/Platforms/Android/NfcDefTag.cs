@@ -25,7 +25,7 @@ namespace Plugin.Nfc
                 .ToArray();
         }
         
-        public async ValueTask<bool> WriteMessage(NfcDefMessage message)
+        public async Task<bool> WriteMessage(NfcDefMessage message)
         {
             if (!IsWriteable) return false;
             if(message == null || message.Records.Length == 0) return false;

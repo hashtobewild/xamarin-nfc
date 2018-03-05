@@ -3,10 +3,14 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="NfcSampleApp.NfcWriterPage">
     <ContentPage.Content>
-        <StackLayout>
-            <Label Text="Welcome to Xamarin.Forms!"
-                VerticalOptions="CenterAndExpand" 
-                HorizontalOptions="CenterAndExpand" />
+        <StackLayout HorizontalOptions="FillAndExpand" VerticalOptions="CenterAndExpand" Padding="20" Spacing="20">
+                <StackLayout Orientation="Horizontal" Spacing="10" HorizontalOptions="FillAndExpand">
+                    <Label Text="Include package name"/>
+                    <Switch x:Name="IsApplicationRecordEnabled" IsToggled="True"/>
+                </StackLayout>
+                <Button x:Name="UriButton" Text="Uri Record" HorizontalOptions="FillAndExpand" HeightRequest="60"/>
+                <Button x:Name="MimeButton" Text="Mime Record" HorizontalOptions="FillAndExpand" HeightRequest="60"/>
+                <Button x:Name="TextButton" Text="Text Record" HorizontalOptions="FillAndExpand" HeightRequest="60"/>
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

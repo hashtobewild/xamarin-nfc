@@ -17,8 +17,11 @@ namespace NfcSampleApp
             InitializeComponent();
 
             this.Children.Add(new NfcReaderPage());
-            this.Children.Add(new NfcWriterPage());
 
+            if(Device.RuntimePlatform == Device.Android)
+            {
+                this.Children.Add(new NfcWriterPage());
+            }
         }
     }
 }

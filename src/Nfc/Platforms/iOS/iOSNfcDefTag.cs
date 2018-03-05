@@ -21,9 +21,9 @@ namespace Plugin.Nfc
                 .ToArray();
         }
 
-        public ValueTask<bool> WriteMessage(NfcDefMessage message)
+        public Task<bool> WriteMessage(NfcDefMessage message)
         {
-           return new ValueTask<bool>(true);
+           return Task.FromResult(true);
         }
 
         public void Dispose()

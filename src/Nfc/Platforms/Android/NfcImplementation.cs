@@ -24,47 +24,31 @@ namespace Plugin.Nfc
             
         }
 
-        public ValueTask<bool> IsAvailableAsync()
+        public bool IsAvailable()
         {
             var activity = CrossNfc.CurrentActivity;;
-            return activity.CheckCallingOrSelfPermission(Manifest.Permission.Nfc) != Permission.Granted ? new ValueTask<bool>(false) : new ValueTask<bool>(_nfcAdapter != null);
+            return activity.CheckCallingOrSelfPermission(Manifest.Permission.Nfc) != Permission.Granted;
         }
 
-        public ValueTask<bool> IsEnabledAsync()
+        public bool IsEnabled()
         {
-            return new ValueTask<bool>(_nfcAdapter?.IsEnabled ?? false);
+            return _nfcAdapter?.IsEnabled ?? false;
         }
 
-        public async Task StartListeningAsync(CancellationToken token = default(CancellationToken))
+        public void StartListening()
         {
             var activity = CrossNfc.CurrentActivity;
            
-            if (!await IsAvailableAsync())
+            if (!IsAvailable())
                 throw new InvalidOperationException("NFC not available");
 
-            if (!await IsEnabledAsync())
+            if (!IsEnabled())
             {
-                activity.RunOnUiThread(() =>
-                {
-                    ShowNfcSettingDialog();
-                });
+                ShowNfcSettingDialog();
                 return;
             }
 
-            token.Register(() =>
-            {
-                if (Build.VERSION.SdkInt >= BuildVersionCodes.Kitkat)
-                {
-                    _nfcAdapter?.DisableReaderMode(CrossNfc.CurrentActivity);
-                }
-                else
-                {
-                    _nfcAdapter?.DisableForegroundDispatch(CrossNfc.CurrentActivity);
-                }
-
-            });
-            
-
+        
             if (Build.VERSION.SdkInt >= BuildVersionCodes.Kitkat)
             {
                 Bundle options = new Bundle();
@@ -82,20 +66,17 @@ namespace Plugin.Nfc
 
         }
 
-        public async Task StopListeningAsync()
+        public void StopListening()
         {
             var activity = CrossNfc.CurrentActivity;
-            activity?.RunOnUiThread(() =>
+            if (Build.VERSION.SdkInt >= BuildVersionCodes.Kitkat)
             {
-                if (Build.VERSION.SdkInt >= BuildVersionCodes.Kitkat)
-                {
-                    _nfcAdapter?.DisableReaderMode(CrossNfc.CurrentActivity);
-                }
-                else
-                {
-                    _nfcAdapter?.DisableForegroundDispatch(CrossNfc.CurrentActivity);
-                }
-            });
+                _nfcAdapter?.DisableReaderMode(CrossNfc.CurrentActivity);
+            }
+            else
+            {
+                _nfcAdapter?.DisableForegroundDispatch(CrossNfc.CurrentActivity);
+            }
         }
 
         internal void CheckForNfcMessage(Intent intent)
