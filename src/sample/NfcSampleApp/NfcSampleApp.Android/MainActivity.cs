@@ -27,8 +27,8 @@ namespace NfcSampleApp.Droid
             base.OnCreate(bundle);
 
             global::Xamarin.Forms.Forms.Init(this, bundle);
-            DependencyService.Register<ToastNotification>(); // Register your dependency
-            ToastNotification.Init(this);
+            DependencyService.Register<ToastNotification>();
+            ToastNotification.Init(this, new PlatformOptions() { SmallIconDrawable = Android.Resource.Drawable.IcDialogInfo });
             LoadApplication(new App());
         }
 

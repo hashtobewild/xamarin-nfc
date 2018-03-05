@@ -52,11 +52,19 @@ namespace NfcSampleApp
                         };
 
             var result = await notificator.Notify(options);
+             Device.BeginInvokeOnMainThread(async () =>
+            {
+                Indicator.BackgroundColor = Color.Red;
+            });
         }
 
         private void Current_TagDetected(TagDetectedEventArgs args)
         {
             _tag = args.Tag;
+            Device.BeginInvokeOnMainThread(async () =>
+            {
+                Indicator.BackgroundColor = Color.Green;
+            });
         }
 
         protected override void OnAppearing()

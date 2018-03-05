@@ -53,9 +53,9 @@ namespace NfcSampleApp
             var result = await notificator.Notify(options);
         }
 
-        private void Current_TagDetected(TagDetectedEventArgs args)
+        private async void Current_TagDetected(TagDetectedEventArgs args)
         {
-            _tag = args.Tag;
+           /* _tag = args.Tag;
 
             _defTag.IsWritable = _tag.IsWriteable;
             _defTag.TagId = _tag.TagId;
@@ -67,7 +67,16 @@ namespace NfcSampleApp
                 records.Add(CrossNfc.CurrentConverter.ConvertFrom(record));
             }
 
-            _defTag.Records.AddRange(records);
+            _defTag.Records.AddRange(records);*/
+              var notificator = DependencyService.Get<IToastNotificator>();
+
+              var options = new NotificationOptions()
+                        {
+                            Title = "Error",
+                            Description = "Heelo"
+                        };
+
+            var result = await notificator.Notify(options);
         }
 
         protected override void OnAppearing()

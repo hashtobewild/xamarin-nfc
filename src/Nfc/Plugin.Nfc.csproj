@@ -67,7 +67,7 @@
     <Compile Include="Platforms\UWP\**\*.cs" />
   </ItemGroup>-->
 
-  <ItemGroup Condition=" '$(TargetFramework)' != 'MonoAndroid80' ">
+  <ItemGroup Condition=" '$(TargetFramework)' != 'MonoAndroid44' ">
     <Compile Remove="Resources\**" />
     <None Include="Resources\**" />
   </ItemGroup>
@@ -81,11 +81,6 @@
   <ItemGroup Condition=" '$(TargetFramework)' == 'Xamarin.iOS10' ">
     <Compile Include="Platforms\iOS\**\*.cs" />
   </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="Shared\NfcReadException.cs" />
-  </ItemGroup>
-
 
   <!--<ItemGroup Condition=" '$(TargetFramework)' == 'Xamarin.TVOS10' ">
     <Compile Include="Platforms\TVOS\**\*.cs" />

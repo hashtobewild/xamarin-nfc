@@ -4,6 +4,7 @@
              x:Class="NfcSampleApp.NfcWriterPage">
     <ContentPage.Content>
         <StackLayout HorizontalOptions="FillAndExpand" VerticalOptions="CenterAndExpand" Padding="20" Spacing="20">
+                <BoxView x:Name="Indicator" BackgroundColor="LightGray" WidthRequest="50" HeightRequest="50"/>
                 <StackLayout Orientation="Horizontal" Spacing="10" HorizontalOptions="FillAndExpand">
                     <Label Text="Include package name"/>
                     <Switch x:Name="IsApplicationRecordEnabled" IsToggled="True"/>

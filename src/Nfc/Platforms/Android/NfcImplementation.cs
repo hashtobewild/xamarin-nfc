@@ -27,7 +27,7 @@ namespace Plugin.Nfc
         public bool IsAvailable()
         {
             var activity = CrossNfc.CurrentActivity;;
-            return activity.CheckCallingOrSelfPermission(Manifest.Permission.Nfc) != Permission.Granted;
+            return activity.CheckCallingOrSelfPermission(Manifest.Permission.Nfc) == Permission.Granted;
         }
 
         public bool IsEnabled()
