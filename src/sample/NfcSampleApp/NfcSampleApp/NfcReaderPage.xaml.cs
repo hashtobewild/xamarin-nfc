@@ -55,28 +55,20 @@ namespace NfcSampleApp
 
         private async void Current_TagDetected(TagDetectedEventArgs args)
         {
-           /* _tag = args.Tag;
+            _tag = args.Tag;
 
             _defTag.IsWritable = _tag.IsWriteable;
             _defTag.TagId = _tag.TagId;
-            
+
             var records = new List<INfcDefRecord>();
 
-            foreach(var record  in _tag.Records)
+            foreach (var record in _tag.Records)
             {
                 records.Add(CrossNfc.CurrentConverter.ConvertFrom(record));
             }
 
-            _defTag.Records.AddRange(records);*/
-              var notificator = DependencyService.Get<IToastNotificator>();
+            _defTag.Records.AddRange(records);
 
-              var options = new NotificationOptions()
-                        {
-                            Title = "Error",
-                            Description = "Heelo"
-                        };
-
-            var result = await notificator.Notify(options);
         }
 
         protected override void OnAppearing()
