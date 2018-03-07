@@ -1,6 +1,7 @@
 ﻿using System;
 using Android.App;
 using Android.Content;
+using Android.Nfc;
 
 namespace Plugin.Nfc
 {
@@ -9,15 +10,14 @@ namespace Plugin.Nfc
         private static Func<Activity> _activityResolver;
 
         public static Activity CurrentActivity => GetCurrentActivity();
-
         public static void SetCurrentActivityResolver(Func<Activity> activityResolver)
         {
             _activityResolver = activityResolver;
         }
 
-        public static void OnNewIntent(Intent intent)
+        public static void OnNewIntent(Intent intent, string[] actionsToHandle = null)
         {
-            (Current as NfcImplementation).CheckForNfcMessage(intent);
+            (Current as NfcImplementation).CheckForNfcMessage(intent, actionsToHandle);
         }
 
         private static Activity GetCurrentActivity()

@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard1.0;netstandard2.0;MonoAndroid44;Xamarin.iOS10;<!--uap10.0.15063--></TargetFrameworks>
+    <TargetFrameworks>netstandard1.0;netstandard2.0;MonoAndroid403;Xamarin.iOS10;<!--uap10.0.15063--></TargetFrameworks>
     <AssemblyName>Plugin.Nfc</AssemblyName>
     <RootNamespace>Plugin.Nfc</RootNamespace>
     <PackageId>Plugin.Nfc</PackageId>
@@ -28,7 +28,7 @@
     <IsTestProject>$(MSBuildProjectName.Contains('Tests'))</IsTestProject>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)' == 'MonoAndroid44'">
+  <PropertyGroup Condition="'$(TargetFramework)' == 'MonoAndroid403'">
     <TargetFrameworkIdentifier>MonoAndroid</TargetFrameworkIdentifier>
     <MonoAndroidResourcePrefix>Resources</MonoAndroidResourcePrefix>
     <MonoAndroidAssetsPrefix>Assets</MonoAndroidAssetsPrefix>
@@ -63,12 +63,12 @@
     <Compile Include="Platforms\UWP\**\*.cs" />
   </ItemGroup>-->
 
-  <ItemGroup Condition=" '$(TargetFramework)' != 'MonoAndroid44' ">
+  <ItemGroup Condition=" '$(TargetFramework)' != 'MonoAndroid403' ">
     <Compile Remove="Resources\**" />
     <None Include="Resources\**" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'MonoAndroid44' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'MonoAndroid403' ">
     <Compile Include="Resources\**\*.cs" />
     <AndroidResource Include="Resources\**\*.xml" />
     <Compile Include="Platforms\Android\**\*.cs" />
