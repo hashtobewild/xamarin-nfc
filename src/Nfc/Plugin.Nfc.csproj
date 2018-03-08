@@ -28,8 +28,9 @@
     <IsTestProject>$(MSBuildProjectName.Contains('Tests'))</IsTestProject>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)' == 'monoandroid44'">
-    <!-- <TargetFrameworkIdentifier>MonoAndroid</TargetFrameworkIdentifier> -->
+  <PropertyGroup Condition="'$(TargetFramework)' == 'monoandroid44' Or '$(TargetFramework)' == 'monoandroid8.1'">
+    <TargetFrameworkIdentifier>MonoAndroid</TargetFrameworkIdentifier>
+    <TargetFrameworkVersion>v8.1</TargetFrameworkVersion>
     <AndroidUseLatestPlatformSdk>true</AndroidUseLatestPlatformSdk>
     <MonoAndroidResourcePrefix>Resources</MonoAndroidResourcePrefix>
     <MonoAndroidAssetsPrefix>Assets</MonoAndroidAssetsPrefix>
@@ -67,12 +68,8 @@
     <None Include="Resources\**" />
   </ItemGroup>
 
-  
-   <ItemGroup Condition=" '$(TargetFramework)' == 'monoandroid44'">
-    <AndroidResource Include="Resources\**\*.xml" />
-  </ItemGroup>
-
    <ItemGroup Condition=" '$(TargetFramework)' == 'monoandroid44' Or '$(TargetFramework)' == 'monoandroid8.1' ">
+    <AndroidResource Include="Resources\**\*.xml" />
     <Compile Include="Resources\**\*.cs" />
     <Compile Include="Platforms\Android\**\*.cs" />
   </ItemGroup>
