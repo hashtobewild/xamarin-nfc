@@ -1,7 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="MSBuild.Sdk.Extras/1.2.2">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard1.0;netstandard2.0;MonoAndroid403;Xamarin.iOS10;<!--uap10.0.15063--></TargetFrameworks>
+    <TargetFrameworks>netstandard1.0;netstandard2.0;monoandroid44;monoandroid8.1;xamarin.ios10;<!--uap10.0.15063--></TargetFrameworks>
     <AssemblyName>Plugin.Nfc</AssemblyName>
     <RootNamespace>Plugin.Nfc</RootNamespace>
     <PackageId>Plugin.Nfc</PackageId>
@@ -28,11 +28,11 @@
     <IsTestProject>$(MSBuildProjectName.Contains('Tests'))</IsTestProject>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)' == 'MonoAndroid403'">
-    <TargetFrameworkIdentifier>MonoAndroid</TargetFrameworkIdentifier>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'monoandroid44'">
+    <!-- <TargetFrameworkIdentifier>MonoAndroid</TargetFrameworkIdentifier> -->
+    <AndroidUseLatestPlatformSdk>true</AndroidUseLatestPlatformSdk>
     <MonoAndroidResourcePrefix>Resources</MonoAndroidResourcePrefix>
     <MonoAndroidAssetsPrefix>Assets</MonoAndroidAssetsPrefix>
-    <AndroidUseLatestPlatformSdk>true</AndroidUseLatestPlatformSdk>
     <AndroidResgenFile>Resources\Resource.designer.cs</AndroidResgenFile>
     <AndroidResgenClass>Resource</AndroidResgenClass>
     <OutputType>Library</OutputType>
@@ -43,7 +43,6 @@
   
   
   <ItemGroup>
-    <PackageReference Include="MSBuild.Sdk.Extras" Version="1.2.0" PrivateAssets="All" />
     <Compile Include="Shared\**\*.cs" />
   </ItemGroup>
 
@@ -63,18 +62,23 @@
     <Compile Include="Platforms\UWP\**\*.cs" />
   </ItemGroup>-->
 
-  <ItemGroup Condition=" '$(TargetFramework)' != 'MonoAndroid403' ">
+  <ItemGroup Condition=" '$(TargetFramework)' != 'monoandroid44' Or '$(TargetFramework)' != 'monoandroid8.1'">
     <Compile Remove="Resources\**" />
     <None Include="Resources\**" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'MonoAndroid403' ">
-    <Compile Include="Resources\**\*.cs" />
+  
+   <ItemGroup Condition=" '$(TargetFramework)' == 'monoandroid44'">
     <AndroidResource Include="Resources\**\*.xml" />
+  </ItemGroup>
+
+   <ItemGroup Condition=" '$(TargetFramework)' == 'monoandroid44' Or '$(TargetFramework)' == 'monoandroid8.1' ">
+    <Compile Include="Resources\**\*.cs" />
     <Compile Include="Platforms\Android\**\*.cs" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'Xamarin.iOS10' ">
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'xamarin.ios10' ">
     <Compile Include="Platforms\iOS\**\*.cs" />
   </ItemGroup>
 
@@ -113,6 +117,4 @@
   -->
 
 
-
-  <Import Project="$(MSBuildSDKExtrasTargets)" Condition="Exists('$(MSBuildSDKExtrasTargets)')" />
 </Project>

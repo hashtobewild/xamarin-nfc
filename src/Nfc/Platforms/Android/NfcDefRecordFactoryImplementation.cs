@@ -36,16 +36,15 @@ namespace Plugin.Nfc
 
         public NfcDefRecord CreateTextRecord(string languageCode, string text)
         {
-            if (Build.VERSION.SdkInt > BuildVersionCodes.Kitkat)
-            {
+            if(Build.VERSION.SdkInt >= BuildVersionCodes.Kitkat)
+            {  
                 var record = NdefRecord.CreateTextRecord(languageCode,text);
                 var r = new AndroidNdefRecord(record);
                 return r;
             }
-            else
-            {
-
-                if(String.IsNullOrWhiteSpace(languageCode)) throw new ArgumentNullException(nameof(languageCode));
+           else 
+           {
+                  if(String.IsNullOrWhiteSpace(languageCode)) throw new ArgumentNullException(nameof(languageCode));
                 if(String.IsNullOrWhiteSpace(text)) throw new ArgumentNullException(nameof(text));
 
                 var languageBytes = Encoding.ASCII.GetBytes(languageCode);
@@ -58,6 +57,7 @@ namespace Plugin.Nfc
 
                  var record = new NdefRecord(NdefRecord.TnfWellKnown, NdefRecord.RtdText.ToArray(), null, recordPayload);
                  return new AndroidNdefRecord(record);
+
             }
         }
 
