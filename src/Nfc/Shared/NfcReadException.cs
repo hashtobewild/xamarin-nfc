@@ -4,26 +4,35 @@ using System.Text;
 
 namespace Plugin.Nfc
 {
-     public class NfcReadException : Exception
+    public enum NfcReadError
     {
-        public NfcReadException() : base("Failed read from NFC Tag")
+        TagResponseError,
+        SessionTimeout,
+        SessionTerminatedUnexpectedly,
+    }
+
+    public class NfcReadException : Exception
+    {
+        public NfcReadError ErrorType {get; }
+
+        public NfcReadException(NfcReadError error) : this(error, "Failed read from NFC Tag")
+        {
+          
+        }
+
+        public NfcReadException(NfcReadError error, string message) : this(error, message, null)
         {
 
         }
 
-        public NfcReadException(string message) : base(message)
+        public NfcReadException(NfcReadError error, Exception inner) : this(error, "Failed read from NFC Tag", inner)
         {
 
         }
 
-        public NfcReadException(Exception inner) : base("Failed read from NFC Tag", inner)
+        public NfcReadException(NfcReadError error, string message, Exception inner) : base(message, inner)
         {
-
-        }
-
-        public NfcReadException(string message, Exception inner) : base(message, inner)
-        {
-
+              ErrorType = error;
         }
     }
 }

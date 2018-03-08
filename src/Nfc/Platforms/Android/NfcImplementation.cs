@@ -123,7 +123,7 @@ namespace Plugin.Nfc
 
                if(ndefMessage == null)
                {
-                 TagError?.Invoke(new TagErrorEventArgs(new NfcReadException("There is no data registered in the NFC tag")));
+                 TagError?.Invoke(new TagErrorEventArgs(new NfcReadException(NfcReadError.TagResponseError, "There is no data registered in the NFC tag")));
                  return;
                }
 
@@ -133,9 +133,13 @@ namespace Plugin.Nfc
                var nfcTag = new NfcDefTag(ndef, records);
                TagDetected?.Invoke(new TagDetectedEventArgs(nfcTag));
             }
+            catch(Java.IO.IOException ex)
+            {
+                TagError?.Invoke(new TagErrorEventArgs(new NfcReadException(NfcReadError.SessionTimeout, ex)));
+            }
             catch(Exception ex)
             {
-                TagError?.Invoke(new TagErrorEventArgs(new NfcReadException(ex)));
+                TagError?.Invoke(new TagErrorEventArgs(new NfcReadException(NfcReadError.TagResponseError, ex)));
             }
         }
 

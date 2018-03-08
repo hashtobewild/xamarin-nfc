@@ -60,17 +60,23 @@ namespace Plugin.Nfc
             
             var readerError = (NFCReaderError)(long)error.Code;
             if (readerError != NFCReaderError.ReaderSessionInvalidationErrorFirstNDEFTagRead &&
-                readerError != NFCReaderError.ReaderSessionInvalidationErrorUserCanceled)
+                readerError != NFCReaderError.ReaderSessionInvalidationErrorUserCanceled &&
+                readerError != NFCReaderError.ReaderSessionInvalidationErrorSessionTimeout && 
+                readerError != NFCReaderError.ReaderSessionInvalidationErrorSessionTerminatedUnexpectedly)
             {
-               TagError?.Invoke(new TagErrorEventArgs(new NfcReadException(error.LocalizedFailureReason)));
+               TagError?.Invoke(new TagErrorEventArgs(new NfcReadException(NfcReadError.TagResponseError, error.LocalizedFailureReason)));
             }
-            else if (readerError == NFCReaderError.ReaderSessionInvalidationErrorUserCanceled)
+            else if (readerError == NFCReaderError.ReaderSessionInvalidationErrorUserCanceled ||
+                 readerError == NFCReaderError.ReaderSessionInvalidationErrorFirstNDEFTagRead ||
+                 readerError == NFCReaderError.ReaderSessionInvalidationErrorSessionTimeout || 
+                 readerError == NFCReaderError.ReaderSessionInvalidationErrorSessionTerminatedUnexpectedly
+                 )
             {
                 
             }
             else
             {
-                TagError?.Invoke(new TagErrorEventArgs(new NfcReadException(error.LocalizedFailureReason)));
+                TagError?.Invoke(new TagErrorEventArgs(new NfcReadException(NfcReadError.TagResponseError, error.LocalizedFailureReason)));
             }
           
             
