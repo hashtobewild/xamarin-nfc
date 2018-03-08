@@ -81,11 +81,7 @@ namespace Plugin.Nfc
 
         internal void CheckForNfcMessage(Intent intent, string[] actionsToHandle)
         {
-            var actions = new[] {NfcAdapter.ActionNdefDiscovered.ToLower(),  NfcAdapter.ActionTechDiscovered.ToLower(),  NfcAdapter.ActionTagDiscovered.ToLower()};
-            if(actionsToHandle != null)
-            {
-                actions = actionsToHandle;
-            }
+            var actions = actionsToHandle;
             
             if (intent == null || !actions.Contains(intent.Action.ToLower())) 
             {

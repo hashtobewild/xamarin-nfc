@@ -17,7 +17,14 @@ namespace Plugin.Nfc
 
         public static void OnNewIntent(Intent intent, string[] actionsToHandle = null)
         {
-            (Current as NfcImplementation).CheckForNfcMessage(intent, actionsToHandle);
+            string[] actions = new [] { NfcAdapter.ActionNdefDiscovered, NfcAdapter.ActionTagDiscovered, NfcAdapter.ActionTechDiscovered};
+            
+            if(actionsToHandle != null)
+            {
+                actions = actionsToHandle;
+            }
+
+            (Current as NfcImplementation).CheckForNfcMessage(intent, actions);
         }
 
         private static Activity GetCurrentActivity()
