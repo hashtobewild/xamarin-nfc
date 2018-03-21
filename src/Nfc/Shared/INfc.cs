@@ -102,6 +102,7 @@ namespace Plugin.Nfc
     {
         string TagId { get;}
         bool IsWriteable { get; }
+        bool HasNfcDefRecords {get;}
         NfcDefRecord[] Records { get; }
         Task<bool> WriteMessage(NfcDefMessage message);
     }

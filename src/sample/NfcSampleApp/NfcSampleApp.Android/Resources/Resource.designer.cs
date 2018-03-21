@@ -26,6 +26,9 @@ namespace NfcSampleApp.Droid
 		
 		public static void UpdateIdValues()
 		{
+			global::Plugin.Nfc.Resource.String.library_name = global::NfcSampleApp.Droid.Resource.String.library_name;
+			global::Plugin.Nfc.Resource.String.nfc_setting_message = global::NfcSampleApp.Droid.Resource.String.nfc_setting_message;
+			global::Plugin.Nfc.Resource.String.nfc_setting_title = global::NfcSampleApp.Droid.Resource.String.nfc_setting_title;
 			global::Plugin.Toasts.Resource.Animation.abc_fade_in = global::NfcSampleApp.Droid.Resource.Animation.abc_fade_in;
 			global::Plugin.Toasts.Resource.Animation.abc_fade_out = global::NfcSampleApp.Droid.Resource.Animation.abc_fade_out;
 			global::Plugin.Toasts.Resource.Animation.abc_grow_fade_in_from_bottom = global::NfcSampleApp.Droid.Resource.Animation.abc_grow_fade_in_from_bottom;
@@ -5255,6 +5258,9 @@ namespace NfcSampleApp.Droid
 			// aapt resource value: 0x7f090038
 			public const int character_counter_pattern = 2131296312;
 			
+			// aapt resource value: 0x7f090040
+			public const int library_name = 2131296320;
+			
 			// aapt resource value: 0x7f090000
 			public const int mr_button_content_description = 2131296256;
 			
@@ -5317,6 +5323,12 @@ namespace NfcSampleApp.Droid
 			
 			// aapt resource value: 0x7f090013
 			public const int mr_user_route_category_name = 2131296275;
+			
+			// aapt resource value: 0x7f090042
+			public const int nfc_setting_message = 2131296322;
+			
+			// aapt resource value: 0x7f090041
+			public const int nfc_setting_title = 2131296321;
 			
 			// aapt resource value: 0x7f090039
 			public const int password_toggle_content_description = 2131296313;

@@ -14,6 +14,8 @@ namespace Plugin.Nfc
         public NfcDefRecord[] Records { get; }
         public string TagId {get;}
 
+        public bool HasNfcDefRecords => Records != null && Records.Length > 0;
+
         private Ndef _tag;
         public NfcDefTag(Ndef tag , IEnumerable<NdefRecord> records, string id = null)
         {

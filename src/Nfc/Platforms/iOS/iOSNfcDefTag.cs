@@ -13,6 +13,8 @@ namespace Plugin.Nfc
 
         public string TagId {get;}
 
+        public bool HasNfcDefRecords => Records != null && Records.Length > 0;
+
         public iOSNfcDefTag(IEnumerable<NFCNdefMessage> records)
         {
             IsWriteable = false;

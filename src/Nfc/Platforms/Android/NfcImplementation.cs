@@ -40,7 +40,10 @@ namespace Plugin.Nfc
             var activity = CrossNfc.CurrentActivity;
            
             if (!IsAvailable())
-                throw new InvalidOperationException("NFC not available");
+            {
+               TagError?.Invoke(new TagErrorEventArgs(new InvalidOperationException("NFC is not available")));
+               return;
+            }
 
             if (!IsEnabled())
             {
@@ -118,18 +121,18 @@ namespace Plugin.Nfc
             try
             {
                var ndef = Ndef.Get(tag);
+               var isWritable = ndef?.IsWritable ?? false;
+            
                ndef.Connect();
                var ndefMessage = ndef.NdefMessage;
-
-               if(ndefMessage == null)
+               if(!isWritable && ndefMessage == null)
                {
-                 TagError?.Invoke(new TagErrorEventArgs(new NfcReadException(NfcReadError.TagResponseError, "There is no data registered in the NFC tag")));
-                 return;
+                  TagError?.Invoke(new TagErrorEventArgs(new NfcReadException(NfcReadError.TagResponseError, "There are no records in NFC tag")));
+                  return;
                }
-
-               var records = ndefMessage.GetRecords();
+               
+               var records = ndefMessage?.GetRecords() ?? new NdefRecord[] { };
                ndef.Close();
-               var isWritable = ndef?.IsWritable ?? false;
                var nfcTag = new NfcDefTag(ndef, records);
                TagDetected?.Invoke(new TagDetectedEventArgs(nfcTag));
             }

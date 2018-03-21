@@ -31,7 +31,7 @@ namespace Plugin.Nfc
             {
                 if (!this.IsAvailable())
                 {
-                    TagError?.Invoke(new TagErrorEventArgs(new InvalidOperationException("Reading NDEF is not available")));
+                    TagError?.Invoke(new TagErrorEventArgs(new InvalidOperationException("NFC is not available")));
                     return;
                 }
 
