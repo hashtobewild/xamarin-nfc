@@ -1,4 +1,4 @@
-<Project Sdk="MSBuild.Sdk.Extras/1.2.2">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>netstandard1.0;netstandard2.0;monoandroid44;monoandroid8.1;xamarin.ios10;<!--uap10.0.15063--></TargetFrameworks>
@@ -45,6 +45,7 @@
   
   <ItemGroup>
     <Compile Include="Shared\**\*.cs" />
+    <PackageReference Include="MSBuild.Sdk.Extras" Version="1.2.2" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(IsTestProject)' != 'true' and '$(SourceLinkEnabled)' != 'false'">
@@ -112,6 +113,8 @@
     <Compile Include="Platforms\DotNet\**\*.cs" />
   </ItemGroup>
   -->
-
+  
+  
+<Import Project="$(MSBuildSDKExtrasTargets)" Condition="Exists('$(MSBuildSDKExtrasTargets)')" />
 
 </Project>

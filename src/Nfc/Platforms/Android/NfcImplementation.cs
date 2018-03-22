@@ -125,12 +125,6 @@ namespace Plugin.Nfc
             
                ndef.Connect();
                var ndefMessage = ndef.NdefMessage;
-               if(!isWritable && ndefMessage == null)
-               {
-                  TagError?.Invoke(new TagErrorEventArgs(new NfcReadException(NfcReadError.TagResponseError, "There are no records in NFC tag")));
-                  return;
-               }
-               
                var records = ndefMessage?.GetRecords() ?? new NdefRecord[] { };
                ndef.Close();
                var nfcTag = new NfcDefTag(ndef, records);
