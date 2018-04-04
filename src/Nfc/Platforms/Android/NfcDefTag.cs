@@ -32,6 +32,7 @@ namespace Plugin.Nfc
         {
             if (!IsWriteable) return false;
             if(message == null || message.Records.Length == 0) return false;
+            if (_tag == null) return false;
 
             var records = message.Records.Cast<AndroidNdefRecord>().Select(m => m.ToNdefRecord()).ToArray();
             var msg = new NdefMessage(records);
