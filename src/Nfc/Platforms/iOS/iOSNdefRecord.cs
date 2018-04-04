@@ -1,4 +1,5 @@
-﻿using CoreNFC;
+﻿using System;
+using CoreNFC;
 
 namespace Plugin.Nfc
 {
@@ -38,12 +39,13 @@ namespace Plugin.Nfc
                 case NFCTypeNameFormat.Unchanged:
                     return NDefTypeNameFormat.Unchanged;
                 case NFCTypeNameFormat.Unknown:
-                    return NDefTypeNameFormat.Unchanged;
+                    return NDefTypeNameFormat.Unknown;
                 case NFCTypeNameFormat.NFCWellKnown:
                     return NDefTypeNameFormat.WellKnown;
                 default:
                     return NDefTypeNameFormat.Unknown;
             }
         }
+
     }
 }

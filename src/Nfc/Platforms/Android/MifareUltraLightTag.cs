@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Android.Nfc;
@@ -123,9 +124,8 @@ namespace Plugin.Nfc
 
             if (t == NfcRecordTypeConstants.RTD_MIFAREULTRALIGHT_NDEF_MESSAGE)
             {
-                var x = new byte[ln];
-                Buffer.BlockCopy(r, MifareUltralight.PageSize, x, 0, ln);
-
+               var x = new byte[ln];
+               Buffer.BlockCopy(r, MifareUltralight.PageSize, x, 0, ln);
                return new NdefMessage(x);
             }
 

@@ -8,7 +8,6 @@ using Java.IO;
 
 namespace Plugin.Nfc
 {
-
     public class NfcDefTag : INfcTag
     {
         public bool IsWriteable { get; }
