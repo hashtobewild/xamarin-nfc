@@ -18,7 +18,7 @@ namespace NfcSampleApp
 	{
 
         private CancellationTokenSource _cancelSource;
-        private INfcDefTag _tag;
+        private INfcTag _tag;
         private DefTag _defTag = new DefTag();
 		public NfcReaderPage ()
 		{
@@ -77,6 +77,7 @@ namespace NfcSampleApp
             CrossNfc.Current.TagError += Current_TagError;
             if(CrossNfc.Current.IsAvailable())
             {
+                CrossNfc.Current.SetSupportedTechnologies(new[] { NfcTechnologyType.Ndef, NfcTechnologyType.MifareUltraLight });
                 CrossNfc.Current.StartListening();
             }
 

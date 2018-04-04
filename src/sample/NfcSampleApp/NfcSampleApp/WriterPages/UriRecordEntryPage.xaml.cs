@@ -13,9 +13,9 @@ namespace NfcSampleApp
 	[XamlCompilation(XamlCompilationOptions.Compile)]
 	public partial class UriRecordEntryPage : PageBase
 	{
-        private readonly INfcDefTag _tag;
+        private readonly INfcTag _tag;
 		private UriRecordEntryViewModel _vm;
-        public UriRecordEntryPage(INfcDefTag tag, bool shouldAddPackageRecord) : base(shouldAddPackageRecord)
+        public UriRecordEntryPage(INfcTag tag, bool shouldAddPackageRecord) : base(shouldAddPackageRecord)
 		{
 			InitializeComponent ();
             _tag = tag;

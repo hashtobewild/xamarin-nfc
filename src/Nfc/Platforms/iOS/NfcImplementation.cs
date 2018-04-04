@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,7 +14,7 @@ namespace Plugin.Nfc
         public event TagDetectedDelegate TagDetected;
         public event TagErrorDelegate TagError;
         private NFCNdefReaderSession _session;
-
+        
         public bool IsAvailable()
         {
             return NFCNdefReaderSession.ReadingAvailable;
@@ -94,6 +95,11 @@ namespace Plugin.Nfc
             {
                 _session?.Dispose();
             }
+        }
+
+        public void SetSupportedTechnologies(IEnumerable<NfcTechnologyType> supportedTechnologies)
+        {
+
         }
     }
 }

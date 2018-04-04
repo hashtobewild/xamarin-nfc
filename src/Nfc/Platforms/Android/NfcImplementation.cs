@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,6 +16,8 @@ namespace Plugin.Nfc
     internal class NfcImplementation : Java.Lang.Object, INfc, NfcAdapter.IReaderCallback
     {
         private readonly NfcAdapter _nfcAdapter;
+        private static IEnumerable<NfcTechnologyType> _defaultSupportedTechnologies = new[] { NfcTechnologyType.Ndef };
+        private IEnumerable<NfcTechnologyType> _supportedTechnologies;
         public event TagDetectedDelegate TagDetected;
         public event TagErrorDelegate TagError;
 
@@ -23,6 +26,7 @@ namespace Plugin.Nfc
             _nfcAdapter = NfcAdapter.GetDefaultAdapter(CrossNfc.CurrentActivity);
             
         }
+
 
         public bool IsAvailable()
         {
@@ -55,16 +59,17 @@ namespace Plugin.Nfc
             if (Build.VERSION.SdkInt >= BuildVersionCodes.Kitkat)
             {
                 Bundle options = new Bundle();
-                _nfcAdapter?.EnableReaderMode(CrossNfc.CurrentActivity, this, NfcReaderFlags.NfcA |  NfcReaderFlags.NfcB | NfcReaderFlags.NfcBarcode | NfcReaderFlags.NfcF | NfcReaderFlags.NfcV, options);
+                _nfcAdapter?.EnableReaderMode(CrossNfc.CurrentActivity, this, NfcReaderFlags.NfcA |  NfcReaderFlags.NfcB | NfcReaderFlags.NfcF | NfcReaderFlags.NfcV, options);
             }
             else
             {
+                var techs = GetSupportedTechnologies(_supportedTechnologies);
                 var tagDetected = new IntentFilter(NfcAdapter.ActionNdefDiscovered);
                 tagDetected.AddDataType("*/*");
                 var filters = new[] { tagDetected };
                 var intent = new Intent(activity, activity.GetType()).AddFlags(ActivityFlags.SingleTop);
                 var pendingIntent = PendingIntent.GetActivity(activity, 0, intent, 0);
-                _nfcAdapter.EnableForegroundDispatch(activity, pendingIntent, filters, new[] { new[] { Java.Lang.Class.FromType(typeof(Ndef)).Name } });
+                _nfcAdapter.EnableForegroundDispatch(activity, pendingIntent, filters, new[] { techs.ToArray() });
             }
 
         }
@@ -72,6 +77,8 @@ namespace Plugin.Nfc
         public void StopListening()
         {
             var activity = CrossNfc.CurrentActivity;
+            _supportedTechnologies = _defaultSupportedTechnologies;
+
             if (Build.VERSION.SdkInt >= BuildVersionCodes.Kitkat)
             {
                 _nfcAdapter?.DisableReaderMode(CrossNfc.CurrentActivity);
@@ -115,20 +122,14 @@ namespace Plugin.Nfc
         public void OnTagDiscovered(Tag tag)
         {
             var techs = tag.GetTechList();
-            if (!techs.Contains(Java.Lang.Class.FromType(typeof(Ndef)).Name))
+            var supportedTechnologies = GetSupportedTechnologies(_supportedTechnologies ?? _defaultSupportedTechnologies);
+            if (!supportedTechnologies.Any(m => techs.Contains(m)))
                 return;
            
             try
             {
-               var ndef = Ndef.Get(tag);
-               var isWritable = ndef?.IsWritable ?? false;
-            
-               ndef.Connect();
-               var ndefMessage = ndef.NdefMessage;
-               var records = ndefMessage?.GetRecords() ?? new NdefRecord[] { };
-               ndef.Close();
-               var nfcTag = new NfcDefTag(ndef, records);
-               TagDetected?.Invoke(new TagDetectedEventArgs(nfcTag));
+                var nfcTag = TagFactory.Create(techs, tag, supportedTechnologies);
+                TagDetected?.Invoke(new TagDetectedEventArgs(nfcTag));
             }
             catch(Java.IO.IOException ex)
             {
@@ -165,5 +166,26 @@ namespace Plugin.Nfc
                 _nfcAdapter.Dispose();
             }
         }
+
+        private static IEnumerable<string> GetSupportedTechnologies(IEnumerable<NfcTechnologyType> supportedTypes)
+        {
+            return supportedTypes.Select(type =>
+            {
+                switch (type)
+                {
+                    case NfcTechnologyType.Ndef:
+                        return Java.Lang.Class.FromType(typeof(Ndef)).Name;
+                    case NfcTechnologyType.MifareUltraLight:
+                        return Java.Lang.Class.FromType(typeof(MifareUltralight)).Name;
+                    case NfcTechnologyType.MifareClassic:
+                        return Java.Lang.Class.FromType(typeof(MifareClassic)).Name;
+                    default:
+                        return String.Empty;
+                }
+
+            }).ToArray();
+        }
+
+        public void SetSupportedTechnologies(IEnumerable<NfcTechnologyType> supportedTechnologies) => _supportedTechnologies = supportedTechnologies;
     }
 }

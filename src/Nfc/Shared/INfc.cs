@@ -6,6 +6,14 @@ using System.Threading.Tasks;
 
 namespace Plugin.Nfc
 {
+    public enum NfcTechnologyType
+    {
+        None,
+        Ndef,
+        MifareUltraLight,
+        MifareClassic
+    }
+
     public static class NfcRecordTypeConstants
     {
         /**
@@ -63,16 +71,21 @@ namespace Plugin.Nfc
          * @hide
          */
         public const string RTD_ANDROID_APP = "android.com:pkg";
+
+        public const char RTD_MIFAREULTRALIGHT_NDEF_MESSAGE = 'N';
+
     }
+
+
 
     public class TagDetectedEventArgs : EventArgs
     {
-        public TagDetectedEventArgs(INfcDefTag tag)
+        public TagDetectedEventArgs(INfcTag tag)
         {
             Tag = tag;
         }
 
-        public INfcDefTag Tag {get; }
+        public INfcTag Tag {get; }
     }
 
     public class TagErrorEventArgs : EventArgs
@@ -96,9 +109,10 @@ namespace Plugin.Nfc
         bool IsEnabled();
         void StartListening();
         void StopListening();
+        void SetSupportedTechnologies(IEnumerable<NfcTechnologyType> supportedTechnologies);
     }
 
-    public interface INfcDefTag : IDisposable
+    public interface INfcTag : IDisposable
     {
         string TagId { get;}
         bool IsWriteable { get; }

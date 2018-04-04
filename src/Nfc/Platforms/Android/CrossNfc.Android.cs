@@ -1,14 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Android.App;
 using Android.Content;
 using Android.Nfc;
+using Android.Nfc.Tech;
 
 namespace Plugin.Nfc
 {
     public partial class CrossNfc
     {
         private static Func<Activity> _activityResolver;
-
         public static Activity CurrentActivity => GetCurrentActivity();
         public static void SetCurrentActivityResolver(Func<Activity> activityResolver)
         {

@@ -11,13 +11,13 @@ using Xamarin.Forms.Xaml;
 
 namespace NfcSampleApp
 {
-	[XamlCompilation(XamlCompilationOptions.Compile)]
-	public partial class NfcWriterPage : ContentPage
-	{
-        private INfcDefTag _tag;
-		public NfcWriterPage ()
-		{
-			InitializeComponent ();
+    [XamlCompilation(XamlCompilationOptions.Compile)]
+    public partial class NfcWriterPage : ContentPage
+    {
+        private INfcTag _tag;
+        public NfcWriterPage()
+        {
+            InitializeComponent();
 
             this.Title = "Write";
 
@@ -30,18 +30,34 @@ namespace NfcSampleApp
             {
                 await Navigation.PushModalAsync(new NavigationPage(new TextRecordEntryPage(_tag, this.IsApplicationRecordEnabled.IsToggled)) {
                     Title = "Text Record"
-                    });
+                });
 
             });
 
-             this.UriButton.Command = new Command(async () =>
+            this.UriButton.Command = new Command(async () =>
+           {
+               await Navigation.PushModalAsync(new NavigationPage(new UriRecordEntryPage(_tag, this.IsApplicationRecordEnabled.IsToggled)) { Title = "Uri" });
+           });
+
+            WriteAs.Toggled += WriteAs_Toggled;
+
+
+        }
+
+        private void WriteAs_Toggled(object sender, ToggledEventArgs e)
+        {
+            if(e.Value)
             {
-                await Navigation.PushModalAsync(new NavigationPage(new UriRecordEntryPage(_tag, this.IsApplicationRecordEnabled.IsToggled)) { Title = "Uri" });
-            });           
+                CrossNfc.Current.SetSupportedTechnologies(new[] { NfcTechnologyType.MifareUltraLight, NfcTechnologyType.Ndef,});
+            }
+            else
+            {
+                CrossNfc.Current.SetSupportedTechnologies(new[] { NfcTechnologyType.Ndef, NfcTechnologyType.MifareUltraLight });
 
-		}
+            }
+        }
 
-         private async void Current_TagError(TagErrorEventArgs args)
+        private async void Current_TagError(TagErrorEventArgs args)
         {
             var notificator = DependencyService.Get<IToastNotificator>();
 
@@ -52,7 +68,7 @@ namespace NfcSampleApp
                         };
 
             var result = await notificator.Notify(options);
-             Device.BeginInvokeOnMainThread(async () =>
+             Device.BeginInvokeOnMainThread(() =>
             {
                 Indicator.BackgroundColor = Color.Red;
             });
@@ -73,9 +89,8 @@ namespace NfcSampleApp
             CrossNfc.Current.TagError += Current_TagError;
             if(CrossNfc.Current.IsAvailable())
             {
-                CrossNfc.Current.StartListening();
+               CrossNfc.Current.StartListening();
             }
-
 
             base.OnAppearing();
         }

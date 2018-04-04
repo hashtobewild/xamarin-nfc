@@ -8,6 +8,8 @@
                 <StackLayout Orientation="Horizontal" Spacing="10" HorizontalOptions="FillAndExpand">
                     <Label Text="Include package name"/>
                     <Switch x:Name="IsApplicationRecordEnabled" IsToggled="True"/>
+                    <Label Text="Write as MifareUltralight"/>
+                    <Switch x:Name="WriteAs" IsToggled="false"/>
                 </StackLayout>
                 <Button x:Name="UriButton" Text="Uri Record" HorizontalOptions="FillAndExpand" HeightRequest="60"/>
                 <Button x:Name="MimeButton" Text="Mime Record" HorizontalOptions="FillAndExpand" HeightRequest="60"/>

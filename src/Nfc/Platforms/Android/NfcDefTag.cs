@@ -8,7 +8,8 @@ using Java.IO;
 
 namespace Plugin.Nfc
 {
-    public class NfcDefTag : INfcDefTag
+
+    public class NfcDefTag : INfcTag
     {
         public bool IsWriteable { get; }
         public NfcDefRecord[] Records { get; }
@@ -41,17 +42,26 @@ namespace Plugin.Nfc
                 if (ndef != null)
                 {
                     await ndef.ConnectAsync();
-                    if (ndef.MaxSize < msg.ToByteArray().Length)
+                    try
                     {
-                        return false;
+                        if (ndef.MaxSize < msg.ToByteArray().Length)
+                        {
+                            return false;
+                        }
+
+                        if (!ndef.IsWritable)
+                        {
+                            return false;
+                        }
+
+                        await ndef.WriteNdefMessageAsync(msg);
+
+                    }
+                    finally
+                    {
+                        ndef.Close();
                     }
 
-                    if (!ndef.IsWritable)
-                    {
-                        return false;
-                    }
-                    await ndef.WriteNdefMessageAsync(msg);
-                    ndef.Close();
                     return true;
                 }
                 
@@ -59,8 +69,15 @@ namespace Plugin.Nfc
                 try
                 {
                     await nDefFormatableTag.ConnectAsync();
-                    nDefFormatableTag.Format(msg);
-                    nDefFormatableTag.Close();
+                    try
+                    {
+                        nDefFormatableTag.Format(msg);
+                    }
+                    finally
+                    {
+                        nDefFormatableTag.Close();
+
+                    }
                     //The data is written to the tag
                     return true;
                 } catch (Exception ex) {
@@ -75,11 +92,8 @@ namespace Plugin.Nfc
 
         public void Dispose()
         {
-           if(_tag != null)
-            {
-                _tag.Dispose();
-                _tag = null;
-            }
+            _tag?.Dispose();
+            _tag = null;
         }
 
     }

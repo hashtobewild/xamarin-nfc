@@ -6,7 +6,7 @@ using CoreNFC;
 
 namespace Plugin.Nfc
 {
-    public class iOSNfcDefTag : INfcDefTag
+    public class iOSNfcDefTag : INfcTag
     {
         public bool IsWriteable { get; }
         public NfcDefRecord[] Records { get; }
