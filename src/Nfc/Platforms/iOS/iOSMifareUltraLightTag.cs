@@ -15,9 +15,16 @@ namespace Plugin.Nfc
 
         public iOSMifareUltraLightTag(NFCNdefMessage message)
         {
-            Records = message.Records
-                .Select(r => new iOSNdefRecord(r))
-                .ToArray();
+            if (message != null)
+            {
+                Records = message?.Records
+                    .Select(r => new iOSNdefRecord(r))
+                    .ToArray();
+            }
+            else
+            {
+                Records = new NfcDefRecord[] { };
+            }
         }
 
         public void Dispose()
