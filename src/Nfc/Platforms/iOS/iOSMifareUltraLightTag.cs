@@ -32,11 +32,8 @@ namespace Plugin.Nfc
 
         }
 
-        public Task<bool> WriteMessage(NfcDefMessage message)
-        {
-            return Task.FromResult(true);
-        }
-
+        public Task<bool> WriteMessage(NfcDefMessage message) => throw new NotSupportedException();
+      
         public static NFCNdefMessage GetMessage(IEnumerable<byte[]> data)
         {
             var array = data.ToArray();
@@ -55,5 +52,7 @@ namespace Plugin.Nfc
             return null;
 
         }
+
+        public Task<bool> Lock() => throw new NotSupportedException();
     }
 }

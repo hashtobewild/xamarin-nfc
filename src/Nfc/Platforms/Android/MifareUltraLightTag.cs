@@ -132,5 +132,28 @@ namespace Plugin.Nfc
             return null;
 
         }
+
+        public async Task<bool> Lock()
+        {
+            if (!IsWriteable) return true;
+            if (_tag == null) return true;
+
+        
+            try
+            {
+                await _tag.ConnectAsync();
+                await _tag.WritePageAsync(2, new byte[] { 0x00, 0x00, 0xFF, 0xFF });
+                await _tag.TransceiveAsync(new byte[] { 0x26 });
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new NfcWriteException(ex);
+            }
+            finally
+            {
+                _tag.Close();
+            }
+        }
     }
 }

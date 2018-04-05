@@ -119,6 +119,7 @@ namespace Plugin.Nfc
         bool HasNfcDefRecords {get;}
         NfcDefRecord[] Records { get; }
         Task<bool> WriteMessage(NfcDefMessage message);
+        Task<bool> Lock();
     }
 
     public interface INfcDefRecordFactory

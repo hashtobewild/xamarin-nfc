@@ -42,6 +42,7 @@ namespace Plugin.Nfc
                 if (ndef != null)
                 {
                     await ndef.ConnectAsync();
+                   
                     try
                     {
                         if (ndef.MaxSize < msg.ToByteArray().Length)
@@ -96,5 +97,25 @@ namespace Plugin.Nfc
             _tag = null;
         }
 
+        public async Task<bool> Lock()
+        {
+            if (!IsWriteable) return true;
+            if (_tag == null) return true;
+
+            try
+            {
+                await _tag.ConnectAsync();
+                return await _tag.MakeReadOnlyAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new NfcWriteException(ex);
+            }
+            finally
+            {
+                _tag.Close();
+            }
+        }
+          
     }
 }
