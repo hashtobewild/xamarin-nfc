@@ -35,7 +35,7 @@ namespace Plugin.Nfc
             {
                 stream.Write(data, 0, data.Length);
                 stream.Position = 0;
-                return Parse(stream, true);
+                return Parse(stream, false);
             }
         }
 
