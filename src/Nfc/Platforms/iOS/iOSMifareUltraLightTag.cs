@@ -13,13 +13,11 @@ namespace Plugin.Nfc
         public bool HasNfcDefRecords => Records != null && Records.Length > 0;
         public NfcDefRecord[] Records { get; }
 
-        public iOSMifareUltraLightTag(NFCNdefMessage message)
+        public iOSMifareUltraLightTag(NfcDefRecord[] records)
         {
-            if (message != null)
+            if (records != null && records.Length > 0)
             {
-                Records = message?.Records
-                    .Select(r => new iOSNdefRecord(r))
-                    .ToArray();
+                Records = records;
             }
             else
             {
@@ -34,7 +32,7 @@ namespace Plugin.Nfc
 
         public Task<bool> WriteMessage(NfcDefMessage message) => throw new NotSupportedException();
       
-        public static NFCNdefMessage GetMessage(IEnumerable<byte[]> data)
+        public static NfcDefRecord[] GetMessage(IEnumerable<byte[]> data)
         {
             var array = data.ToArray();
             var r = ByteArrayExtensions.Combine(array);
@@ -46,7 +44,7 @@ namespace Plugin.Nfc
             {
                 var x = new byte[ln];
                 Buffer.BlockCopy(r, 4, x, 0, ln);
-                return NFCNdefMessageExtensions.Create(x);
+                return iOSNdefRecordExtensions.Create(x);
             }
 
             return null;

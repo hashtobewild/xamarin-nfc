@@ -6,7 +6,7 @@ using System.IO;
 
 namespace Plugin.Nfc
 {
-    public static class NFCNdefMessageExtensions
+    public static class iOSNdefRecordExtensions
     {
         private const byte FlatMb = (byte)0x80;
         private const byte FlagMe = (byte)0x40;
@@ -24,15 +24,12 @@ namespace Plugin.Nfc
         private const short TnfWellKnown = 1;
         private const short TnfReserved = 7;
 
-        public static NFCNdefMessage Create(byte[] data)
+        public static NfcDefRecord[] Create(byte[] data)
         {
-            return new NFCNdefMessage(new NSCoder())
-            {
-                Records = GetNdefRecordFromData(data)
-            };
+            return GetNdefRecordFromData(data);
         }
 
-        private static NFCNdefPayload[] GetNdefRecordFromData(byte[] data)
+        private static iOSNdefRecord[] GetNdefRecordFromData(byte[] data)
         {
             using (var stream = new MemoryStream())
             {
@@ -56,9 +53,9 @@ namespace Plugin.Nfc
     * @throws FormatException on any parsing error
     */
 
-        private static NFCNdefPayload[] Parse(MemoryStream buffer, bool ignoreMbMe)
+        private static iOSNdefRecord[] Parse(MemoryStream buffer, bool ignoreMbMe)
         {
-            var records = new List<NFCNdefPayload>();
+            var records = new List<iOSNdefRecord>();
             try
             {
                 byte[] type = null;
@@ -168,13 +165,7 @@ namespace Plugin.Nfc
                     {
                         throw new FormatException(error);
                     }
-                    records.Add(new NFCNdefPayload(new NSCoder())
-                    {
-                        Payload = NSData.FromArray(payload),
-                        Identifier = NSData.FromArray(id),
-                        Type = NSData.FromArray(type),
-                        TypeNameFormat = GetTnf(tnf)
-                    });
+                    records.Add(new iOSNdefRecord(payload, id, type, GetTnf(tnf)));
 
                     if (ignoreMbMe)
                     {  // for parsing a single NdefRecord

@@ -5,6 +5,7 @@ namespace Plugin.Nfc
 {
     public class iOSNdefRecord : NfcDefRecord
     {
+     
         public iOSNdefRecord(NFCNdefPayload nativeRecord)
         {
             TypeNameFormat = GetTypeNameFormat(nativeRecord.TypeNameFormat);
@@ -23,6 +24,15 @@ namespace Plugin.Nfc
                 Id = nativeRecord.Identifier.ToArray();
             }
         }
+
+        public iOSNdefRecord(byte[] payload, byte[] identifier, byte[] type, NFCTypeNameFormat format)
+        {
+            Payload = payload;
+            Id = identifier;
+            TypeInfo = type;
+            TypeNameFormat = GetTypeNameFormat(format);
+        }
+
 
         private NDefTypeNameFormat GetTypeNameFormat(NFCTypeNameFormat nativeTypeNameFormat)
         {
