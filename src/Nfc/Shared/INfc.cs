@@ -218,8 +218,14 @@ namespace Plugin.Nfc
         public TextRecord(NfcDefRecord record)
         {
             var encoding = record.EncodedWith;
-            int languageCodeLength = record.Payload[0] & 0077;
-            LanguageCode = Encoding.Unicode.GetString(record.Payload, 1, languageCodeLength);
+            int languageCodeLength = record.Payload[0] & 0x77;
+
+#if NETSTANDARD1_0
+            LanguageCode = "en";
+#else
+
+            LanguageCode = Encoding.ASCII.GetString(record.Payload, 1, languageCodeLength);
+#endif
             Text = encoding.GetString(record.Payload, languageCodeLength + 1, record.Payload.Length - languageCodeLength - 1);
         }
 

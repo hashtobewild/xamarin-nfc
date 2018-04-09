@@ -238,7 +238,7 @@ namespace Plugin.Nfc
                 case TnfWellKnown:
                     return NFCTypeNameFormat.NFCWellKnown;
                 default:
-                    return NFCTypeNameFormat.Unknown;
+                    return NFCTypeNameFormat.Empty;
             }
         }
     }

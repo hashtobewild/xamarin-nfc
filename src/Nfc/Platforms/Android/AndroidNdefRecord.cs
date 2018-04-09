@@ -30,7 +30,7 @@ namespace Plugin.Nfc
                 case NdefRecord.TnfUnchanged:
                     return NDefTypeNameFormat.Unchanged;
                 case NdefRecord.TnfUnknown:
-                    return NDefTypeNameFormat.Unchanged;
+                    return NDefTypeNameFormat.Unknown ;
                 case NdefRecord.TnfWellKnown:
                     return NDefTypeNameFormat.WellKnown;
             }
