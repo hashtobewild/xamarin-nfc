@@ -98,13 +98,11 @@ namespace Plugin.Nfc
         public Exception Exception {get;}
     }
 
-    public delegate void TagDetectedDelegate(TagDetectedEventArgs args);
-    public delegate void TagErrorDelegate(TagErrorEventArgs args);
 
     public interface INfc
     {
-        event TagDetectedDelegate TagDetected;
-        event TagErrorDelegate TagError;
+        event EventHandler<TagDetectedEventArgs> TagDetected;
+        event EventHandler<TagErrorEventArgs> TagError;
         bool IsAvailable();
         bool IsEnabled();
         void StartListening();

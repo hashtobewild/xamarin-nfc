@@ -11,8 +11,8 @@ namespace Plugin.Nfc
 {
     public class NfcImplementation : NSObject, INfc, INFCNdefReaderSessionDelegate
     {
-        public event TagDetectedDelegate TagDetected;
-        public event TagErrorDelegate TagError;
+        public event EventHandler<TagDetectedEventArgs> TagDetected;
+        public event EventHandler<TagErrorEventArgs> TagError;
         private NFCNdefReaderSession _session;
         
         public bool IsAvailable()
@@ -32,7 +32,7 @@ namespace Plugin.Nfc
             {
                 if (!this.IsAvailable())
                 {
-                    TagError?.Invoke(new TagErrorEventArgs(new InvalidOperationException("NFC is not available")));
+                    TagError?.Invoke(null, new TagErrorEventArgs(new InvalidOperationException("NFC is not available")));
                     return;
                 }
 
@@ -41,7 +41,7 @@ namespace Plugin.Nfc
             }
             catch(Exception ex)
             {
-                TagError?.Invoke(new TagErrorEventArgs(ex));
+                TagError?.Invoke(null, new TagErrorEventArgs(ex));
             }
            
         }
@@ -65,7 +65,7 @@ namespace Plugin.Nfc
                 readerError != NFCReaderError.ReaderSessionInvalidationErrorSessionTimeout && 
                 readerError != NFCReaderError.ReaderSessionInvalidationErrorSessionTerminatedUnexpectedly)
             {
-               TagError?.Invoke(new TagErrorEventArgs(new NfcReadException(NfcReadError.TagResponseError, error.LocalizedFailureReason)));
+               TagError?.Invoke(null, new TagErrorEventArgs(new NfcReadException(NfcReadError.TagResponseError, error.LocalizedFailureReason)));
             }
             else if (readerError == NFCReaderError.ReaderSessionInvalidationErrorUserCanceled ||
                  readerError == NFCReaderError.ReaderSessionInvalidationErrorFirstNDEFTagRead ||
@@ -77,7 +77,7 @@ namespace Plugin.Nfc
             }
             else
             {
-                TagError?.Invoke(new TagErrorEventArgs(new NfcReadException(NfcReadError.TagResponseError, error.LocalizedFailureReason)));
+                TagError?.Invoke(null, new TagErrorEventArgs(new NfcReadException(NfcReadError.TagResponseError, error.LocalizedFailureReason)));
             }
           
             
@@ -85,7 +85,7 @@ namespace Plugin.Nfc
 
         public void DidDetect(NFCNdefReaderSession session, NFCNdefMessage[] messages)
         {
-            TagDetected?.Invoke(new TagDetectedEventArgs(new iOSNfcDefTag(messages)));
+            TagDetected?.Invoke(null, new TagDetectedEventArgs(new iOSNfcDefTag(messages)));
         }
 
         protected override void Dispose(bool disposing)

@@ -18,8 +18,8 @@ namespace Plugin.Nfc
         private readonly NfcAdapter _nfcAdapter;
         private static IEnumerable<NfcTechnologyType> _defaultSupportedTechnologies = new[] { NfcTechnologyType.Ndef };
         private IEnumerable<NfcTechnologyType> _supportedTechnologies;
-        public event TagDetectedDelegate TagDetected;
-        public event TagErrorDelegate TagError;
+        public event EventHandler<TagDetectedEventArgs> TagDetected;
+        public event EventHandler<TagErrorEventArgs> TagError;
 
         public NfcImplementation()
         {
@@ -45,7 +45,7 @@ namespace Plugin.Nfc
            
             if (!IsAvailable())
             {
-               TagError?.Invoke(new TagErrorEventArgs(new InvalidOperationException("NFC is not available")));
+               TagError?.Invoke(null, new TagErrorEventArgs(new InvalidOperationException("NFC is not available")));
                return;
             }
 
@@ -116,7 +116,7 @@ namespace Plugin.Nfc
                 .SelectMany(m => m.GetRecords().Select(r => r))
                 .ToArray();
             
-            TagDetected?.Invoke(new TagDetectedEventArgs(new NfcDefTag(null, records)));
+            TagDetected?.Invoke(null, new TagDetectedEventArgs(new NfcDefTag(null, records)));
         }
 
         public void OnTagDiscovered(Tag tag)
@@ -129,15 +129,15 @@ namespace Plugin.Nfc
             try
             {
                 var nfcTag = TagFactory.Create(techs, tag, supportedTechnologies);
-                TagDetected?.Invoke(new TagDetectedEventArgs(nfcTag));
+                TagDetected?.Invoke(this, new TagDetectedEventArgs(nfcTag));
             }
             catch(Java.IO.IOException ex)
             {
-                TagError?.Invoke(new TagErrorEventArgs(new NfcReadException(NfcReadError.SessionTimeout, ex)));
+                TagError?.Invoke(null, new TagErrorEventArgs(new NfcReadException(NfcReadError.SessionTimeout, ex)));
             }
             catch(Exception ex)
             {
-                TagError?.Invoke(new TagErrorEventArgs(new NfcReadException(NfcReadError.TagResponseError, ex)));
+                TagError?.Invoke(null, new TagErrorEventArgs(new NfcReadException(NfcReadError.TagResponseError, ex)));
             }
         }
 
