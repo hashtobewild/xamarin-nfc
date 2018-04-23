@@ -57,7 +57,7 @@ namespace NfcSampleApp
             }
         }
 
-        private async void Current_TagError(TagErrorEventArgs args)
+        private async void Current_TagError(object sender, TagErrorEventArgs args)
         {
             var notificator = DependencyService.Get<IToastNotificator>();
 
@@ -74,7 +74,7 @@ namespace NfcSampleApp
             });
         }
 
-        private void Current_TagDetected(TagDetectedEventArgs args)
+        private void Current_TagDetected(object sender, TagDetectedEventArgs args)
         {
             _tag = args.Tag;
             Device.BeginInvokeOnMainThread(async () =>
