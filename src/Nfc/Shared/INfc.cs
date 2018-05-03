@@ -160,12 +160,12 @@ namespace Plugin.Nfc
 
     public class NfcDefRecord
     {
-        public NfcDefRecord() : this(false)
+        internal NfcDefRecord() : this(false)
         {
 
         }
 
-        public NfcDefRecord(bool isEmpty)
+        internal NfcDefRecord(bool isEmpty)
         { 
             this.IsEmpty = isEmpty;
         }
@@ -209,11 +209,16 @@ namespace Plugin.Nfc
     public class UnknownRecord : NfcRecord
     {
         public override NfcDefRecordType RecordType => NfcDefRecordType.Unknown;
+
+        public static UnknownRecord Create()
+        {
+            return new UnknownRecord();
+        }
     }
 
     public class TextRecord : NfcRecord
     {
-        public TextRecord(NfcDefRecord record)
+        internal TextRecord(NfcDefRecord record)
         {
             var encoding = record.EncodedWith;
             int languageCodeLength = record.Payload[0] & 0x77;
@@ -227,15 +232,32 @@ namespace Plugin.Nfc
             Text = encoding.GetString(record.Payload, languageCodeLength + 1, record.Payload.Length - languageCodeLength - 1);
         }
 
+        private TextRecord(string langugeCode, string text)
+        {
+            LanguageCode = langugeCode;
+            Text = text;
+        }
+
         public override NfcDefRecordType RecordType => NfcDefRecordType.Text;
 
         public string LanguageCode {get;}
         public string Text {get;}
+
+       
+        public static TextRecord Create(string langugeCode, string text)
+        {
+            return new TextRecord(langugeCode, text);
+        }
     }
 
     public class ApplicationRecord : NfcRecord
     {
-        public ApplicationRecord(NfcDefRecord record)
+        private ApplicationRecord(string packageName)
+        {
+            PackageName = packageName;
+        }
+
+        internal ApplicationRecord(NfcDefRecord record)
         {
             PackageName = Encoding.UTF8.GetString(record.Payload, 0, record.Payload.Length);
         }
@@ -243,11 +265,22 @@ namespace Plugin.Nfc
         public override NfcDefRecordType RecordType => NfcDefRecordType.Application;
 
         public string PackageName {get;}
+
+        public static ApplicationRecord Create(string packageName)
+        {
+            return new ApplicationRecord(packageName);
+        }
     }
 
     public class MimeRecord : NfcRecord
     {
-        public MimeRecord(NfcDefRecord record)
+        private MimeRecord(string mimeType, byte[] mimeData)
+        {
+            MimeType = mimeType;
+            MimeData = mimeData;
+        }
+
+        internal MimeRecord(NfcDefRecord record)
         {
             MimeData = record.Payload;
             MimeType = Encoding.Unicode.GetString(record.TypeInfo,  0, record.TypeInfo.Length);
@@ -257,11 +290,23 @@ namespace Plugin.Nfc
 
         public string MimeType {get;}
         public byte[] MimeData {get;}
+
+        public static MimeRecord Create(string mimeType, byte[] mimeData)
+        {
+            return new MimeRecord(mimeType, mimeData);
+        }
     }
 
     public class ExternalRecord : NfcRecord
     {
-        public ExternalRecord(NfcDefRecord record)
+        private ExternalRecord(string domain, string type, byte[] data)
+        {
+            Domain = domain;
+            Type = type;
+            Data = data;
+        }
+
+        internal ExternalRecord(NfcDefRecord record)
         {
             Data = record.Payload;
             var domainAndType = Encoding.UTF8.GetString(record.TypeInfo,  0, record.TypeInfo.Length);
@@ -280,6 +325,11 @@ namespace Plugin.Nfc
         public string Domain {get;}
         public string Type {get;}
         public byte[] Data {get;}
+
+        public static ExternalRecord Create(string domain, string type, byte[] data)
+        {
+            return new ExternalRecord(domain, type, data);
+        }
     }
 
     public class UriRecord : NfcRecord
@@ -323,7 +373,12 @@ namespace Plugin.Nfc
              
         };
 
-        public UriRecord(NfcDefRecord record)
+        private UriRecord(Uri uri)
+        {
+            Url = uri;
+        }
+
+        internal UriRecord(NfcDefRecord record)
         {
             if(UriPrefixMap.ContainsKey(record.Payload[0]))
             {
@@ -336,9 +391,14 @@ namespace Plugin.Nfc
 
         public override NfcDefRecordType RecordType => NfcDefRecordType.Uri;
 
-        public string Prefix {get;}
+        internal string Prefix {get;}
         public Uri Url {get;}
         public string UrlString => Url?.AbsoluteUri;
+
+        public static UriRecord Create(Uri uri)
+        {
+            return new UriRecord(uri);
+        }
     }
 
     public interface INfcDefRecordConverter
