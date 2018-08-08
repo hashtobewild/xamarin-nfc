@@ -12,21 +12,47 @@ namespace Plugin.Nfc
     {
         public bool IsWriteable { get; }
         public NfcDefRecord[] Records { get; }
-        public string TagId {get;}
+        public string TagId { get; }
 
         public bool HasNfcDefRecords => Records != null && Records.Length > 0;
 
         private Ndef _tag;
-        public NfcDefTag(Ndef tag , IEnumerable<NdefRecord> records, string id = null)
+        public NfcDefTag(Ndef tag, IEnumerable<NdefRecord> records, string id = null)
         {
             _tag = tag;
             IsWriteable = tag?.IsWritable ?? false;
-            TagId = id;
+            TagId = GetTagId(tag.Tag);
             Records = records
                 .Select(r => new AndroidNdefRecord(r))
                 .ToArray();
         }
-        
+
+        private string GetTagId(Tag tag)
+        {
+            var uid = tag.GetId();
+
+            if (uid != null && uid.Length > 0)
+            {
+                return BytesToHex(uid);
+            }
+
+            return null;
+        }
+
+        private static char[] hexArray = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+        public static string BytesToHex(byte[] bytes)
+        {
+            char[] hexChars = new char[bytes.Length * 2];
+            int v;
+            for (int j = 0; j < bytes.Length; j++)
+            {
+                v = bytes[j] & 0xFF;
+                hexChars[j * 2] = hexArray[v >> 4];
+                hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+            }
+            return new string(hexChars);
+        }
+
         public async Task<bool> WriteMessage(NfcDefMessage message)
         {
             if (!IsWriteable) return false;
