@@ -14,3 +14,6 @@ Xamarin plugin for reading NFC tags.
 
 ## Usage
 ### API
+
+## Special Thanks:
+ 
