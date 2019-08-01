@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="NfcSampleApp.NfcWriterPage">
+    <ContentPage.Content>
+        <StackLayout HorizontalOptions="FillAndExpand" VerticalOptions="CenterAndExpand" Padding="20" Spacing="20">
+                <BoxView x:Name="Indicator" BackgroundColor="LightGray" WidthRequest="50" HeightRequest="50"/>
+                <StackLayout Orientation="Horizontal" Spacing="10" HorizontalOptions="FillAndExpand">
+                    <Label Text="Include package name"/>
+                    <Switch x:Name="IsApplicationRecordEnabled" IsToggled="True"/>
+                    <Label Text="Write as MifareUltralight"/>
+                    <Switch x:Name="WriteAs" IsToggled="false"/>
+                </StackLayout>
+                <Button x:Name="UriButton" Text="Uri Record" HorizontalOptions="FillAndExpand" HeightRequest="60"/>
+                <Button x:Name="MimeButton" Text="Mime Record" HorizontalOptions="FillAndExpand" HeightRequest="60"/>
+                <Button x:Name="TextButton" Text="Text Record" HorizontalOptions="FillAndExpand" HeightRequest="60"/>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

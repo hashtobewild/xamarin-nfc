@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ViewCell xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="NfcSampleApp.ExternalRecordWriteCell">
+        <StackLayout Padding="20" HorizontalOptions="FillAndExpand" Spacing="5">
+            <Label Text="Domain"
+                   VerticalOptions="CenterAndExpand" 
+                   HorizontalOptions="CenterAndExpand" />
+            <Label Text="{Binding Domain}"
+                   VerticalOptions="CenterAndExpand" 
+                   HorizontalOptions="CenterAndExpand" />
+            
+            <Label Text="Type"
+                   VerticalOptions="CenterAndExpand" 
+                   HorizontalOptions="CenterAndExpand" />
+            <Label Text="{Binding Type}"
+                   VerticalOptions="CenterAndExpand" 
+                   HorizontalOptions="CenterAndExpand" />
+               <Label Text="Data"
+                      VerticalOptions="CenterAndExpand" 
+                      HorizontalOptions="CenterAndExpand" />
+               <Label Text="{Binding Data}"
+                      VerticalOptions="CenterAndExpand" 
+                      HorizontalOptions="CenterAndExpand" />    
+        </StackLayout>
+</ViewCell>
